@@ -1,0 +1,31 @@
+{
+  "name": "tesseract-state",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./type": "./dist/types/index.d.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "docs": "typedoc",
+    "pack": "npm pack"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.4",
+    "@types/node": "^14.0.23",
+    "jest": "^26.1.0",
+    "ts-jest": "^26.1.2",
+    "typedoc": "^0.19.2",
+    "typescript": "^4.0.5"
+  },
+  "engines": {
+    "node": ">=12"
+  },
+  "dependencies": {
+    "redux": "^4.0.5"
+  }
+}
