@@ -1,0 +1,20 @@
+{
+  "name": "tesseract-state-workbench",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "install": "lerna bootstrap",
+    "build": "lerna run build",
+    "start": "lerna run start",
+    "analyze": "lerna run analyze",
+    "test": "lerna run test",
+    "release": "lerna run release",
+    "link": "lerna link convert",
+    "docs": "lerna run docs",
+    "pack": "lerna run pack"
+  },
+  "devDependencies": {
+    "lerna": "^3.22.1"
+  },
+  "dependencies": {}
+}
