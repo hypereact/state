@@ -28,7 +28,7 @@
     "declaration": true,
     "declarationDir": "./dist",
     "outDir": "./dist",
-    "inlineSourceMap": true 
+    "sourceMap": true 
   },
   "include": [
     "src/**/*"
