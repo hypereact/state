@@ -4,7 +4,6 @@ import * as ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import {
   Action,
-  classDecorator,
   ReduceableAction,
   ReduceableReducer,
   StoreManager,
