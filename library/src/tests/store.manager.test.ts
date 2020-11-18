@@ -1,8 +1,13 @@
-import { IAction, IReduceableAction, ReduceableReducer } from "..";
-import { IState } from "..";
-import { StoreManager } from "..";
+import {
+  Action,
+  IAction,
+  IReduceableAction,
+  ReduceableAction,
+  ReduceableReducer,
+  StoreManager,
+} from "..";
 
-interface TestState extends IState {
+interface TestState {
   reduced: number;
 }
 const initialState: TestState = {
@@ -13,7 +18,7 @@ enum TestActionTypes {
   REDUCE2_TEST = "REDUCE2_TEST",
 }
 const reduce1 = jest.fn().mockImplementation(
-  (state: TestState = initialState, action: IAction): IState => {
+  (state: TestState = initialState, action: IAction): TestState => {
     switch (action.type) {
       case TestActionTypes.REDUCE1_TEST:
         return { ...state, reduced: state.reduced + 1 };
@@ -38,52 +43,54 @@ const MockReducer2 = jest.fn().mockImplementation(() => ({
   reduce: reduce2,
 }));
 const mockReducer2 = new MockReducer2();
-class ReduceableAction<TestState> implements IReduceableAction<TestState> {
+class ReduceableAction3<TestState> implements IReduceableAction<TestState> {
   type = "REDUCEABLE_ACTION_TEST";
+  slice = "test3";
 
-  constructor(public increment: number) {
-  }
+  constructor(public increment: number) {}
 
-  reduce(state: TestState, action: ReduceableAction<TestState>) {
+  reduce(state: TestState | any, action: ReduceableAction3<TestState>) {
     state.reduced += this.increment;
     return state;
   }
 }
+@Action("REDUCEABLE_ACTION_TEST", "test4")
+class ReduceableAction4<TestState> extends ReduceableAction<TestState> {
+  constructor(public increment: number) {
+    super();
+  }
 
+  reduce(state: TestState | any, action: ReduceableAction4<TestState>) {
+    state.reduced += this.increment;
+    return state;
+  }
+}
 
 beforeEach(() => {
   reduce1.mockClear();
   reduce2.mockClear();
 });
 
-test("create singleton instance of store manager", () => {
-  const storeManager = StoreManager.getInstance();
+test("create instance of store manager without reducers", () => {
+  const storeManager: StoreManager = new StoreManager();
   expect(storeManager).not.toBeUndefined();
   expect(storeManager).toBeInstanceOf(StoreManager);
 });
 
 test("initialize store with one reducer", () => {
-  const storeManager = StoreManager.getInstance();
-  storeManager.getStore({
+  const storeManager: StoreManager = new StoreManager({
     test1: mockReducer1,
   });
   expect(reduce1).toHaveBeenCalled();
   expect(storeManager.getSlices().length).toEqual(1);
 });
 
-test("get state from an already created store", () => {
-  const storeManager = StoreManager.getInstance();
-  storeManager.getStore();
-  expect(reduce1).not.toHaveBeenCalled();
-  expect(storeManager.getSlices().length).toEqual(1);
-  let state: TestState = storeManager.getState("test1") as TestState;
-  expect(state.reduced).toEqual(0);
-});
-
 test("reduce a json dispatched action", () => {
-  const storeManager = StoreManager.getInstance();
-  storeManager.getStore();
-  expect(reduce1).not.toHaveBeenCalled();
+  const storeManager: StoreManager = new StoreManager({
+    test1: mockReducer1,
+  });
+  expect(reduce1).toHaveBeenCalled();
+  reduce1.mockClear();
   storeManager.dispatch({
     type: TestActionTypes.REDUCE1_TEST,
   });
@@ -102,11 +109,11 @@ test("reduce a json dispatched action", () => {
 });
 
 test("extend an existing store with new reducers", () => {
-  const storeManager = StoreManager.getInstance();
-  let state1pre: TestState = storeManager.getState("test1") as TestState;
-  storeManager.getStore({
+  const storeManager: StoreManager = new StoreManager({
+    test1: mockReducer1,
     test2: mockReducer2,
   });
+  let state1pre: TestState = storeManager.getState("test1") as TestState;
   expect(reduce1).toHaveBeenCalled();
   expect(reduce2).toHaveBeenCalled();
   reduce1.mockClear();
@@ -126,8 +133,9 @@ test("extend an existing store with new reducers", () => {
 });
 
 test("dispatch with reduce-able action", () => {
-  const storeManager = StoreManager.getInstance();
-  storeManager.getStore({
+  const storeManager: StoreManager = new StoreManager({
+    test1: mockReducer1,
+    test2: mockReducer2,
     test3: new ReduceableReducer<TestState>(initialState),
   });
   expect(reduce1).toHaveBeenCalled();
@@ -135,9 +143,34 @@ test("dispatch with reduce-able action", () => {
   expect(storeManager.getSlices().length).toEqual(3);
   let state3pre: TestState = storeManager.getState("test3") as TestState;
   expect(state3pre.reduced).toEqual(0);
-  expect(storeManager.getActionTypes().length).toEqual(0);
-  storeManager.dispatch(new ReduceableAction(2));
-  expect(storeManager.getActionTypes().length).toEqual(1);
+  expect(storeManager.getReduceableActionTypes().length).toEqual(0);
+  storeManager.dispatch(new ReduceableAction3(2));
+  expect(storeManager.getReduceableActionTypes().length).toEqual(1);
   let state3post: TestState = storeManager.getState("test3") as TestState;
   expect(state3post.reduced).toEqual(2);
+});
+
+test("dispatch with two reduce-able action", () => {
+  const storeManager: StoreManager = new StoreManager({
+    test1: mockReducer1,
+    test2: mockReducer2,
+    test3: new ReduceableReducer<TestState>(initialState),
+    test4: new ReduceableReducer<TestState>(initialState),
+  });
+  expect(reduce1).toHaveBeenCalled();
+  expect(reduce2).toHaveBeenCalled();
+  expect(storeManager.getSlices().length).toEqual(4);
+  let state3pre: TestState = storeManager.getState("test3") as TestState;
+  expect(state3pre.reduced).toEqual(0);
+  let state4pre: TestState = storeManager.getState("test3") as TestState;
+  expect(state4pre.reduced).toEqual(0);
+  expect(storeManager.getReduceableActionTypes().length).toEqual(0);
+  storeManager.dispatch(new ReduceableAction3(2));
+  expect(storeManager.getReduceableActionTypes().length).toEqual(1);
+  storeManager.dispatch(new ReduceableAction4(2));
+  expect(storeManager.getReduceableActionTypes().length).toEqual(2);
+  let state3post: TestState = storeManager.getState("test3") as TestState;
+  expect(state3post.reduced).toEqual(2);
+  let state4post: TestState = storeManager.getState("test4") as TestState;
+  expect(state4post.reduced).toEqual(2);
 });

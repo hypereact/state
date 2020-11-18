@@ -1,7 +1,5 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node",
     "target": "ES2015",
     "lib": [
       "ES2015",
@@ -13,31 +11,23 @@
       "DOM"
     ],
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "downlevelIteration": true,
-    "allowSyntheticDefaultImports": true,
-    "allowJs": false,
+    "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": false,
-    "emitDeclarationOnly": false,
-    "declaration": true,
-    "declarationDir": "./dist",
-    "outDir": "./dist",
-    "sourceMap": true
+    "noEmit": true,
+    "jsx": "react"
   },
   "include": [
-    "src/**/*"
+    "./src/**/*"
   ],
-  "exclude": [
-    "**/tests/*.test.ts",
-  ],
-  "typedocOptions": {
-    "mode": "modules",
-    "out":"./dist/docs"
-  }
+  "exclude": []
 }

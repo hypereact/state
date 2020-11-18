@@ -1,0 +1,9 @@
+{
+  "name": "Tesseract Plaayground",
+  "short_name": "tesseract",
+  "icons": [],
+  "theme_color": "#184fa4",
+  "background_color": "#184fa4",
+  "display": "standalone",
+  "start_url": "."
+}

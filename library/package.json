@@ -1,18 +1,14 @@
 {
-  "name": "tesseract-state",
-  "version": "0.0.1",
-  "private": true,
-  "main": "./src/index.ts",
-  "types": "./dist/types/index.d.ts",
-  "exports": {
-    ".": "./src/index.ts",
-    "./type": "./dist/types/index.d.ts"
-  },
+  "name": "@novetica/tesseract-state",
+  "version": "0.0.9",
+  "private": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "rm dist -rf && npm version patch && tsc",
     "test": "jest",
     "docs": "typedoc",
-    "pack": "npm pack"
+    "pack": "rm *.tgz && npm pack"
   },
   "devDependencies": {
     "@types/jest": "^26.0.4",
