@@ -116,7 +116,7 @@ export class StoreManager {
   dispatch(action: IAction) {
     if (this.isActionReduceable(action)) {
       if (!this.reducersMap.has(action.slice)) {
-        //TODO: auto create reduceable reducer for slice
+        this.addReducer(action.slice,new ReduceableReducer<any>({}));
       }
       if (!this.actionsMap?.get(action.slice)?.has(action.type)) {
         this.addActionReducer(action.slice, action.type, action.reduce);

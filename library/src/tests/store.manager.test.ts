@@ -43,24 +43,27 @@ const MockReducer2 = jest.fn().mockImplementation(() => ({
   reduce: reduce2,
 }));
 const mockReducer2 = new MockReducer2();
-class ReduceableAction3<TestState> implements IReduceableAction<TestState> {
+class ReduceableAction3 implements IReduceableAction<TestState> {
   type = "REDUCEABLE_ACTION_TEST";
   slice = "test3";
 
   constructor(public increment: number) {}
 
-  reduce(state: TestState | any, action: ReduceableAction3<TestState>) {
+  reduce(state: TestState, action: ReduceableAction3) {
+    if (state.reduced == null) {
+      state.reduced = 0;
+    }
     state.reduced += this.increment;
     return state;
   }
 }
 @Action("REDUCEABLE_ACTION_TEST", "test4")
-class ReduceableAction4<TestState> extends ReduceableAction<TestState> {
+class ReduceableAction4 extends ReduceableAction<TestState> {
   constructor(public increment: number) {
     super();
   }
 
-  reduce(state: TestState | any, action: ReduceableAction4<TestState>) {
+  reduce(state: TestState, action: ReduceableAction4) {
     state.reduced += this.increment;
     return state;
   }
@@ -173,4 +176,18 @@ test("dispatch with two reduce-able action", () => {
   expect(state3post.reduced).toEqual(2);
   let state4post: TestState = storeManager.getState("test4") as TestState;
   expect(state4post.reduced).toEqual(2);
+});
+
+test("dispatch with one reduce-able action with auto reducer registration", () => {
+  const storeManager: StoreManager = new StoreManager({
+    test1: mockReducer1,
+    test2: mockReducer2,
+  });
+  expect(reduce1).toHaveBeenCalled();
+  expect(reduce2).toHaveBeenCalled();
+  expect(storeManager.getSlices().length).toEqual(2);
+  storeManager.dispatch(new ReduceableAction3(2));
+  expect(storeManager.getSlices().length).toEqual(3);
+  let state3post: TestState = storeManager.getState("test3") as TestState;
+  expect(state3post.reduced).toEqual(2);
 });
