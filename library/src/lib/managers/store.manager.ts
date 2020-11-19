@@ -130,7 +130,10 @@ export class StoreManager {
       if (!this.reducersMap.has(action.slice)) {
         this.addReducer(action.slice, new ReduceableReducer<any>({}));
       }
-      if (!this.actionsMap?.get(action.slice)?.has(action.type)) {
+      if (
+        action.type != null &&
+        !this.actionsMap?.get(action.slice)?.has(action.type)
+      ) {
         this.addActionReducer(action.slice, action.type, action.reduce);
       }
     }

@@ -1,6 +1,6 @@
 {
   "name": "@novetica/tesseract-state",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "private": false,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -20,7 +20,11 @@ export class ReduceableReducer<T> implements IReducer<T> {
     if (state == null) {
       return this.initialState;
     }
-    if (this.slice != null && this.slice === action.slice) {
+    if (
+      this.slice != null &&
+      this.slice === action.slice &&
+      action.type != null
+    ) {
       const reduce:
         | Reduce<T>
         | undefined = this?.manager?.getReduceByActionType?.(
