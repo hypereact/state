@@ -1,5 +1,5 @@
-import { IAction } from "../interfaces/action";
-import { IReducer, Reduce } from "../interfaces/reducer";
+import { IAction } from "../interfaces/action.interface";
+import { IReducer, Reduce } from "../interfaces/reducer.interface";
 import { StoreManager } from "../managers/store.manager";
 
 export class ReduceableReducer<T> implements IReducer<T> {

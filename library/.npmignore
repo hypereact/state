@@ -4,3 +4,4 @@ dist/docs
 tsconfig.json
 jest.config.js
 *.tgz
+.npmrc

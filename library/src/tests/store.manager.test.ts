@@ -4,6 +4,7 @@ import {
   IReduceableAction,
   ReduceableAction,
   ReduceableReducer,
+  ReduxAction,
   StoreManager,
 } from "..";
 
@@ -43,6 +44,8 @@ const MockReducer2 = jest.fn().mockImplementation(() => ({
   reduce: reduce2,
 }));
 const mockReducer2 = new MockReducer2();
+@ReduxAction(TestActionTypes.REDUCE2_TEST)
+class Action2 extends Action {}
 class ReduceableAction3 implements IReduceableAction<TestState> {
   type = "REDUCEABLE_ACTION_TEST";
   slice = "test3";
@@ -57,7 +60,7 @@ class ReduceableAction3 implements IReduceableAction<TestState> {
     return state;
   }
 }
-@Action("REDUCEABLE_ACTION_TEST", "test4")
+@ReduxAction("REDUCEABLE_ACTION_TEST", "test4")
 class ReduceableAction4 extends ReduceableAction<TestState> {
   constructor(public increment: number) {
     super();
@@ -103,9 +106,7 @@ test("reduce a json dispatched action", () => {
   storeManager.dispatch({
     type: TestActionTypes.REDUCE1_TEST,
   });
-  storeManager.dispatch({
-    type: TestActionTypes.REDUCE2_TEST,
-  });
+  storeManager.dispatch(new Action2());
   expect(reduce1).toHaveBeenCalledTimes(3);
   let state2: TestState = storeManager.getState("test1") as TestState;
   expect(state2.reduced).toEqual(2);

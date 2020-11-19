@@ -1,4 +1,4 @@
-export function Action(type: string, slice: string) {
+export function ReduxAction(type: string, slice?: string) {
   return function decorator<T extends { new (...args: any[]): {} }>(
     constructor: T
   ) {

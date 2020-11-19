@@ -1,7 +1,7 @@
 import { Action, AnyAction, combineReducers, createStore, Store } from "redux";
-import { IAction } from "../interfaces/action";
-import { IConfig } from "../interfaces/config";
-import { IReducer, Reduce } from "../interfaces/reducer";
+import { IAction } from "../interfaces/action.interface";
+import { IConfig } from "../interfaces/config.interface";
+import { IReducer, Reduce } from "../interfaces/reducer.interface";
 import { ReduceableReducer } from "../reducers/reduceable.reducer";
 
 export class StoreManager {
@@ -11,6 +11,9 @@ export class StoreManager {
   private actionsMap: Map<string, Map<string, Reduce<any>>> = new Map();
   private combinedReducer: any;
   private removeQueue: string[] = [];
+  private fallbackReduce: Reduce<any> = (state: any, action: IAction): any => {
+    return state || {};
+  };
 
   constructor(initialReducers?: IConfig) {
     if (initialReducers != null && initialReducers instanceof Map) {
@@ -38,12 +41,18 @@ export class StoreManager {
   }
 
   private combineReducersMap(): any {
+    let hasReducers: boolean = false;
     const reducersMapObject: any = {};
     for (let [key, value] of this.reducersMap.entries()) {
+      hasReducers = true;
       if (value instanceof ReduceableReducer) {
         (<any>value)._initialize(key, this);
       }
       reducersMapObject[key] = value.reduce.bind(value);
+    }
+    if (!hasReducers) {
+      console.debug("no reducers yet defined");
+      reducersMapObject._ = this.fallbackReduce;
     }
     return combineReducers(reducersMapObject);
   }
@@ -76,9 +85,12 @@ export class StoreManager {
   }
 
   addReducer(key: string, reducer: IReducer<any>) {
+    const isReplaced: boolean = this.reducersMap.has(key);
     this.reducersMap.set(key, reducer);
     this.combinedReducer = this.combineReducersMap();
-    this.store?.dispatch({ type: "@@UPDATE" });
+    this.store?.dispatch({
+      type: isReplaced ? "@@REDUCER_REPLACE" : "@@REDUCER_ADD",
+    });
   }
 
   removeReducer(key: string) {
@@ -88,7 +100,7 @@ export class StoreManager {
     this.reducersMap.delete(key);
     this.removeQueue.push(key);
     this.combinedReducer = this.combineReducersMap();
-    this.store?.dispatch({ type: "@@UPDATE" });
+    this.store?.dispatch({ type: "@@REDUCER_REMOVE" });
   }
 
   addActionReducer(slice: string, type: string, reduce: Reduce<any>) {
@@ -116,7 +128,7 @@ export class StoreManager {
   dispatch(action: IAction) {
     if (this.isActionReduceable(action)) {
       if (!this.reducersMap.has(action.slice)) {
-        this.addReducer(action.slice,new ReduceableReducer<any>({}));
+        this.addReducer(action.slice, new ReduceableReducer<any>({}));
       }
       if (!this.actionsMap?.get(action.slice)?.has(action.type)) {
         this.addActionReducer(action.slice, action.type, action.reduce);
