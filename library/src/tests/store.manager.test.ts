@@ -1,7 +1,6 @@
 import {
   IAction,
   IReduceableAction,
-  ReduceableAction,
   ReduceableReducer,
   ReduxAction,
   StoreManager,
@@ -60,10 +59,8 @@ class ReduceableAction3 implements IReduceableAction<TestState> {
   }
 }
 @ReduxAction("REDUCEABLE_ACTION_TEST", "test4")
-class ReduceableAction4 extends ReduceableAction<TestState> {
-  constructor(public increment: number) {
-    super();
-  }
+class ReduceableAction4 implements IReduceableAction<TestState> {
+  constructor(public increment: number) {}
 
   reduce(state: TestState, action: ReduceableAction4) {
     state.reduced += this.increment;
