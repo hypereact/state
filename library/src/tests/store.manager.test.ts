@@ -1,10 +1,12 @@
 import {
   IAction,
   IReduceableAction,
+  MergeableReducer,
   ReduceableReducer,
   ReduxAction,
   StoreManager,
 } from "..";
+import { IMergeableAction } from "../lib/interfaces/action.interface";
 
 interface TestState {
   reduced: number;
@@ -66,6 +68,11 @@ class ReduceableAction4 implements IReduceableAction<TestState> {
     state.reduced += this.increment;
     return state;
   }
+}
+
+@ReduxAction("MERGABLE_ACTION_TEST", "test5")
+class MergeableAction5 implements IMergeableAction<TestState> {
+  constructor(public reduced: number) {}
 }
 
 beforeEach(() => {
@@ -187,4 +194,16 @@ test("dispatch with one reduce-able action with auto reducer registration", () =
   expect(storeManager.getSlices().length).toEqual(3);
   let state3post: TestState = storeManager.getState("test3") as TestState;
   expect(state3post.reduced).toEqual(2);
+});
+
+test("dispatch with one merge-able action with merge-able reducer", () => {
+  const storeManager: StoreManager = new StoreManager({
+    test5: new MergeableReducer(initialState),
+  });
+  expect(storeManager.getSlices().length).toEqual(1);
+  let state5pre: TestState = storeManager.getState("test5") as TestState;
+  expect(state5pre.reduced).toEqual(0);
+  storeManager.dispatch(new MergeableAction5(5));
+  let state5post: TestState = storeManager.getState("test5") as TestState;
+  expect(state5post.reduced).toEqual(5);
 });

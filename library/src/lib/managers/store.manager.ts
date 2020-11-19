@@ -2,6 +2,7 @@ import { Action, AnyAction, combineReducers, createStore, Store } from "redux";
 import { IAction } from "../interfaces/action.interface";
 import { IConfig } from "../interfaces/config.interface";
 import { IReducer, Reduce } from "../interfaces/reducer.interface";
+import { MergeableReducer } from "../reducers/mergeable.reducer";
 import { ReduceableReducer } from "../reducers/reduceable.reducer";
 
 export class StoreManager {
@@ -45,7 +46,10 @@ export class StoreManager {
     const reducersMapObject: any = {};
     for (let [key, value] of this.reducersMap.entries()) {
       hasReducers = true;
-      if (value instanceof ReduceableReducer) {
+      if (
+        value instanceof ReduceableReducer ||
+        value instanceof MergeableReducer
+      ) {
         (<any>value)._initialize(key, this);
       }
       reducersMapObject[key] = value.reduce.bind(value);

@@ -5,3 +5,7 @@ export interface IReducer<T> {
 }
 
 export type Reduce<T> = (state: T, action: IAction) => T;
+
+export interface IHydratableReducer<T> {
+  reduce(state: T, action: IAction): T;
+}
