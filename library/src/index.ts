@@ -1,4 +1,4 @@
-export { Action, ReduceableAction } from "./lib/beans/action.bean";
+export { ReduceableAction } from "./lib/beans/action.bean";
 export { ReduxAction } from "./lib/decorators/reduceable.action";
 export type {
   IAction,

@@ -1,5 +1,4 @@
 import {
-  Action,
   IAction,
   IReduceableAction,
   ReduceableAction,
@@ -45,7 +44,7 @@ const MockReducer2 = jest.fn().mockImplementation(() => ({
 }));
 const mockReducer2 = new MockReducer2();
 @ReduxAction(TestActionTypes.REDUCE2_TEST)
-class Action2 extends Action {}
+class Action2 implements IAction {}
 class ReduceableAction3 implements IReduceableAction<TestState> {
   type = "REDUCEABLE_ACTION_TEST";
   slice = "test3";
