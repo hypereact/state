@@ -1,9 +1,12 @@
 {
-  "name": "@novetica/tesseract-state",
-  "version": "0.0.25",
+  "name": "@tesseract/state",
+  "version": "0.0.29",
   "private": false,
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./src/lib/index.ts",
+    "./js": "./dist/index.js",
+    "./types": "./dist/index.d.ts"
+  },
   "scripts": {
     "build": "rm dist -rf && npm version patch && tsc",
     "test": "jest",

@@ -26,8 +26,8 @@
     "noEmit": false,
     "emitDeclarationOnly": false,
     "declaration": true,
-    "declarationDir": "./dist",
-    "outDir": "./dist",
+    "declarationDir": "./dist/types",
+    "outDir": "./dist/js",
     "sourceMap": true 
   },
   "include": [
