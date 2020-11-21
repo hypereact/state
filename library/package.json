@@ -1,30 +1,29 @@
 {
   "name": "@tesseract/state",
-  "version": "0.0.29",
+  "version": "1.0.0",
   "private": false,
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": "./src/lib/index.ts",
-    "./js": "./dist/index.js",
-    "./types": "./dist/index.d.ts"
+    "./js": "./dist/js/index.js"
   },
   "scripts": {
-    "build": "rm dist -rf && npm version patch && tsc",
+    "clean": "rm dist -rf && rm *.tgz -f",
+    "build": "npm run clean && tsc",
     "test": "jest",
     "docs": "typedoc",
-    "pack": "rm *.tgz -f && npm pack"
+    "pack": "npm run build && npm pack",
+    "release": "npm version patch && npm run build"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.4",
-    "@types/node": "^14.0.23",
-    "jest": "^26.1.0",
-    "ts-jest": "^26.1.2",
-    "typedoc": "^0.19.2",
-    "typescript": "^4.0.5"
-  },
-  "engines": {
-    "node": ">=12"
+    "@types/jest": "^26.0.0",
+    "@types/node": "^14.0.0",
+    "jest": "^26.0.0",
+    "ts-jest": "^26.0.0",
+    "typedoc": "^0.19.0",
+    "typescript": "^4.0.0"
   },
   "dependencies": {
-    "redux": "^4.0.5"
+    "redux": "^4.0.0"
   }
 }
