@@ -26,8 +26,8 @@
     "noEmit": false,
     "emitDeclarationOnly": false,
     "declaration": true,
-    "declarationDir": "./dist/types",
-    "outDir": "./dist/js",
+    "declarationDir": "./build/js",
+    "outDir": "./build/js",
     "sourceMap": true 
   },
   "include": [
@@ -38,6 +38,6 @@
   ],
   "typedocOptions": {
     "mode": "modules",
-    "out":"./dist/docs"
+    "out":"./build/docs"
   }
 }

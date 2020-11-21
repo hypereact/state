@@ -2,18 +2,16 @@
   "name": "@tesseract/state",
   "version": "1.0.0",
   "private": false,
-  "types": "./dist/types/index.d.ts",
-  "exports": {
-    ".": "./src/lib/index.ts",
-    "./js": "./dist/js/index.js"
-  },
+  "main": "./ts/index.ts",
+  "types": "./js/index.d.ts",
   "scripts": {
-    "clean": "rm dist -rf && rm *.tgz -f",
-    "build": "npm run clean && tsc",
+    "clean": "rm build -rf && rm *.tgz -f",
+    "build": "npm run clean && tsc && npm run docs && cp -r src build/ts && cp package.json build && cp .npmignore build",
     "test": "jest",
     "docs": "typedoc",
-    "pack": "npm run build && npm pack",
-    "release": "npm version patch && npm run build"
+    "release": "npm version patch && npm run build",
+    "pack": "npm run build && cd build && npm pack",
+    "deploy": "npm run build && cd build && npm publish"
   },
   "devDependencies": {
     "@types/jest": "^26.0.0",

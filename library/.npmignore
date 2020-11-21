@@ -1,6 +1,4 @@
-src/tests
-dist/docs
-tsconfig.json
-jest.config.js
+ts/tests
+docs
 *.tgz
 .*
