@@ -1,6 +1,6 @@
 import { IAction } from "@tesseract/state";
 
-export interface UnmanagedTitleSetAction extends IAction {
+export interface UnmanagedStatusSetAction extends IAction {
   type: string;
-  title: string;
+  status: string;
 }

@@ -1,9 +1,9 @@
 import { IMergeableAction, ReduxAction } from "@tesseract/state";
-import { AppState } from "./app.state";
 import { AppStateSlices } from "./reducer.config";
+import { SliceState } from "./slice.state";
 
-@ReduxAction("MERGEABLE_TITLE_SET", AppStateSlices.MERGEABLE)
-export class MergeableTitleAndOtherSetAction
-  implements IMergeableAction<AppState> {
-  constructor(public title: string, public clicked: boolean) {}
+@ReduxAction("MERGEABLE_STATUS_SET", AppStateSlices.MERGEABLE)
+export class MergeableStatusAndOtherSetAction
+  implements IMergeableAction<SliceState> {
+  constructor(public status: string, public clicked: boolean) {}
 }

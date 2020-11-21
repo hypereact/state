@@ -1,16 +1,16 @@
 import { IReducer } from "@tesseract/state";
-import { AppState } from "./app.state";
+import { SliceState } from "./slice.state";
 
-const initialState: AppState = {
-  title: "Hello there!",
+const initialState: SliceState = {
+  status: "initialized",
   count: 0,
 };
 
-export class UnmanagedReducer implements IReducer<AppState> {
-  reduce(state: AppState = initialState, action: any): AppState {
+export class UnmanagedReducer implements IReducer<SliceState> {
+  reduce(state: SliceState = initialState, action: any): SliceState {
     switch (action.type) {
-      case "UNMANAGED_TITLE_SET":
-        return { ...state, title: action.title };
+      case "UNMANAGED_STATUS_SET":
+        return { ...state, status: action.status };
         break;
       case "UNMANAGED_COUNT_SET":
         return { ...state, count: action.count };

@@ -1,26 +1,37 @@
-import { StoreManager } from "@tesseract/state";
+import { ReduxConnect, StoreManager } from "@tesseract/state";
 import React from "react";
-import { AppState } from "./app.state";
-import { MergeableTitleAndOtherSetAction } from "./mergeable.action";
+import { MergeableStatusAndOtherSetAction } from "./mergeable.action";
 import { ReduceableSetIncrementAction } from "./reduceable.action";
-import { AppStateSlices } from "./reducer.config";
-import { UnmanagedTitleSetAction } from "./unmanaged.action";
+import { AppStateSlices, ReduxState } from "./reducer.config";
+import { SliceState } from "./slice.state";
+import { UnmanagedStatusSetAction } from "./unmanaged.action";
 
-export class App extends React.Component {
+interface AppProps {
+  unmanaged?: SliceState;
+  reduceable?: SliceState;
+  mergeable?: SliceState;
+}
+
+@ReduxConnect((state: ReduxState) => {
+  return {
+    ...state,
+  };
+})
+export class App extends React.Component<AppProps> {
   // get the store manager instance created initially
   private storeManager: StoreManager = StoreManager.getInstance();
 
-  private handleUnmanagedTitleClick() {
-    const action: UnmanagedTitleSetAction = {
-      type: "UNMANAGED_TITLE_SET",
-      title: "dispatched",
+  private handleUnmanagedStatusClick() {
+    const action: UnmanagedStatusSetAction = {
+      type: "UNMANAGED_STATUS_SET",
+      status: "dispatched",
     };
     this.storeManager.dispatch(action);
     console.log(this.storeManager.getState());
   }
 
   private handleUnmanagedCountClick(increment: number) {
-    const currentState: AppState = this.storeManager.getState(
+    const currentState: SliceState = this.storeManager.getState(
       AppStateSlices.UNMANAGED
     );
     this.storeManager.dispatch({
@@ -30,9 +41,9 @@ export class App extends React.Component {
     console.log(this.storeManager.getState());
   }
 
-  private handleMergeableTitleClick() {
+  private handleMergeableStatusClick() {
     this.storeManager.dispatch(
-      new MergeableTitleAndOtherSetAction("dispatched", false)
+      new MergeableStatusAndOtherSetAction("dispatched", false)
     );
     console.log(this.storeManager.getState());
   }
@@ -54,7 +65,7 @@ export class App extends React.Component {
           <thead>
             <tr>
               <th>Slice</th>
-              <th>State (.title)</th>
+              <th>State (.status)</th>
               <th>State (.count)</th>
               <th>Actions</th>
             </tr>
@@ -62,11 +73,11 @@ export class App extends React.Component {
           <tbody>
             <tr>
               <td>unmanaged</td>
-              <td></td>
-              <td></td>
+              <td>{this.props.unmanaged?.status}</td>
+              <td>{this.props.unmanaged?.count}</td>
               <td>
-                <button onClick={() => this.handleUnmanagedTitleClick()}>
-                  Set Title
+                <button onClick={() => this.handleUnmanagedStatusClick()}>
+                  Set Status
                 </button>
                 <button onClick={() => this.handleUnmanagedCountClick(2)}>
                   Increment Count By
@@ -75,21 +86,21 @@ export class App extends React.Component {
             </tr>
             <tr>
               <td>mergeable</td>
-              <td></td>
-              <td></td>
+              <td>{this.props.mergeable?.status}</td>
+              <td>{this.props.mergeable?.count}</td>
               <td>
-                <button onClick={() => this.handleMergeableTitleClick()}>
-                  Set Title
+                <button onClick={() => this.handleMergeableStatusClick()}>
+                  Set Status
                 </button>
               </td>
             </tr>
             <tr>
               <td>reduceable</td>
-              <td></td>
-              <td></td>
+              <td>{this.props.reduceable?.status}</td>
+              <td>{this.props.reduceable?.count}</td>
               <td>
                 <button onClick={() => this.handleReducleableClick(2)}>
-                  Set Title And Increment Count By
+                  Set Status And Increment Count By
                 </button>
               </td>
             </tr>
