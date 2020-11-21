@@ -1,11 +1,11 @@
 {
   "name": "@tesseract/state",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
-  "main": "./ts/index.ts",
+  "main": "./js/index.js",
   "types": "./js/index.d.ts",
   "scripts": {
-    "clean": "rm build -rf && rm *.tgz -f",
+    "clean": "rm build -rf",
     "build": "npm run clean && tsc && npm run docs && cp -r src build/ts && cp package.json build && cp .npmignore build",
     "test": "jest",
     "docs": "typedoc",
