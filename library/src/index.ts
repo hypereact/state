@@ -1,4 +1,5 @@
-export { ReduxAction } from "./lib/decorators/reduceable.action";
+export { ReduxAction } from "./lib/decorators/redux.action";
+export { ReduxConnect } from "./lib/decorators/redux.connect";
 export type {
   IAction,
   IMergeableAction,
