@@ -1,12 +1,12 @@
 import {
   IAction,
+  IMergeableAction,
   IReduceableAction,
   MergeableReducer,
   ReduceableReducer,
   ReduxAction,
   StoreManager,
 } from "..";
-import { IMergeableAction } from "../lib/interfaces/action.interface";
 
 interface TestState {
   reduced: number;

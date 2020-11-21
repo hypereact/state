@@ -1,11 +1,13 @@
 import { Action, AnyAction, combineReducers, createStore, Store } from "redux";
 import { IAction } from "../interfaces/action.interface";
-import { IConfig } from "../interfaces/config.interface";
+import { IReducerConfig } from "../interfaces/config.interface";
 import { IReducer, Reduce } from "../interfaces/reducer.interface";
 import { MergeableReducer } from "../reducers/mergeable.reducer";
 import { ReduceableReducer } from "../reducers/reduceable.reducer";
 
 export class StoreManager {
+  private static instance: StoreManager;
+
   private store!: Store<any, AnyAction>;
   private initialized: boolean = false;
   private reducersMap: Map<string, IReducer<any>> = new Map();
@@ -16,7 +18,16 @@ export class StoreManager {
     return state || {};
   };
 
-  constructor(initialReducers?: IConfig) {
+  static getInstance(initialReducers?: IReducerConfig): StoreManager {
+    if (StoreManager.instance == null) {
+      StoreManager.instance = new StoreManager(initialReducers);
+    } else {
+      //TODO add support for multiple initializations
+    }
+    return StoreManager.instance;
+  }
+
+  constructor(initialReducers?: IReducerConfig) {
     if (initialReducers != null && initialReducers instanceof Map) {
       this.reducersMap = initialReducers;
     } else {
