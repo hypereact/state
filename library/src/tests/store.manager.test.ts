@@ -207,3 +207,43 @@ test("dispatch with one merge-able action with merge-able reducer", () => {
   let state5post: TestState = storeManager.getState("test5") as TestState;
   expect(state5post.reduced).toEqual(5);
 });
+
+const dehydrate = jest.fn().mockImplementation((state: TestState): any => {
+  return state;
+});
+
+const rehydrate = jest
+  .fn()
+  .mockImplementation((state: TestState, data: any) => {
+    return data;
+  });
+class PersistentReduceableReducer extends ReduceableReducer<TestState> {
+  rehydrate(state: TestState, data: any): TestState {
+    return rehydrate(state, data);
+  }
+  dehydrate(state: TestState): any {
+    return dehydrate(state);
+  }
+}
+
+test("hydratable reducer methods are properly invoked", (): void => {
+  const reducer = new PersistentReduceableReducer(initialState);
+  const storedState = {
+    test6: {
+      reduced: 7,
+    },
+  };
+  localStorage.setItem("_redux_state_", JSON.stringify(storedState));
+  expect(dehydrate).not.toHaveBeenCalled();
+  expect(rehydrate).not.toHaveBeenCalled();
+  const storeManager: StoreManager = new StoreManager({
+    test6: reducer,
+  });
+  expect(dehydrate).not.toHaveBeenCalled();
+  expect(rehydrate).toHaveBeenCalledWith(initialState, storedState.test6);
+  expect(storeManager.getSlices().length).toEqual(1);
+  let state6: TestState = storeManager.getState("test6") as TestState;
+  expect(state6.reduced).toEqual(7);
+  window.dispatchEvent(new Event("beforeunload"));
+  expect(dehydrate).toHaveBeenCalledWith(storedState.test6);
+});

@@ -1,8 +1,8 @@
 import { IAction } from "../interfaces/action.interface";
-import { IReducer } from "../interfaces/reducer.interface";
+import { ISliceReducer } from "../interfaces/reducer.interface";
 import { StoreManager } from "../managers/store.manager";
 
-export class MergeableReducer<T> implements IReducer<T> {
+export class MergeableReducer<T> implements ISliceReducer<T> {
   private initialState: T;
   private slice?: string;
   private manager?: StoreManager;
