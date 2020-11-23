@@ -6,12 +6,14 @@ import { AppStateSlices, ReduxState } from "./reducer.config";
 import { SliceState } from "./slice.state";
 import { UnmanagedStatusSetAction } from "./unmanaged.action";
 
+// define interface for component props
 interface AppProps {
   unmanaged?: SliceState;
   reduceable?: SliceState;
   mergeable?: SliceState;
 }
 
+// decorate with the react-redux mapStateToProps as argument
 @ReduxConnect((state: ReduxState) => {
   return {
     ...state,
@@ -48,18 +50,28 @@ export class App extends React.Component<AppProps> {
     console.log(this.storeManager.getState());
   }
 
-  private handleReducleableClick(increment: number) {
+  private handleReduceableClick(increment: number) {
     this.storeManager.dispatch(
       new ReduceableSetIncrementAction("dispatched", increment)
     );
     console.log(this.storeManager.getState());
   }
 
+  private handleStartReduceable() {
+    setInterval(() => {
+      this.storeManager.dispatch(
+        new ReduceableSetIncrementAction("dispatched", 2)
+      );
+      this.storeManager.dispatch(
+        new MergeableStatusAndOtherSetAction("dispatched", false)
+      );
+    }, 1000);
+  }
+
   render() {
-    console.log(this.storeManager.getSlices());
     return (
       <>
-        <div>Slices: this.storeManager.getSlices()</div>
+        <div>Slices: {this.storeManager.getSlices().join(", ")}</div>
         <br />
         <table>
           <thead>
@@ -99,13 +111,14 @@ export class App extends React.Component<AppProps> {
               <td>{this.props.reduceable?.status}</td>
               <td>{this.props.reduceable?.count}</td>
               <td>
-                <button onClick={() => this.handleReducleableClick(2)}>
+                <button onClick={() => this.handleReduceableClick(2)}>
                   Set Status And Increment Count By
                 </button>
               </td>
             </tr>
           </tbody>
         </table>
+        <button onClick={() => this.handleStartReduceable()}>Loop</button>
       </>
     );
   }

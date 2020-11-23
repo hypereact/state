@@ -1,14 +1,17 @@
 import {
   IReducerConfig,
   MergeableReducer,
-  ReduceableReducer,
+  PersistentReduceableReducer,
 } from "@tesseract/state";
 import { SliceState } from "./slice.state";
 import { UnmanagedReducer } from "./unmanaged.reducer";
 
 export const reducerConfig: IReducerConfig = {
   unmanaged: new UnmanagedReducer(),
-  reduceable: new ReduceableReducer({ status: "initialized", count: 0 }),
+  reduceable: new PersistentReduceableReducer({
+    status: "initialized",
+    count: 0,
+  }),
   mergeable: new MergeableReducer({ status: "initialized", count: 0 }),
 };
 
