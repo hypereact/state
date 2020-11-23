@@ -1,5 +1,9 @@
 import { IAction } from "../interfaces/action.interface";
-import { ISliceReducer, Reduce } from "../interfaces/reducer.interface";
+import {
+  IHydratableReducer,
+  ISliceReducer,
+  Reduce,
+} from "../interfaces/reducer.interface";
 import { StoreManager } from "../managers/store.manager";
 
 export class ReduceableReducer<T> implements ISliceReducer<T> {
@@ -35,6 +39,17 @@ export class ReduceableReducer<T> implements ISliceReducer<T> {
         return reduce.call(action, JSON.parse(JSON.stringify(state)), action);
       }
     }
+    return state;
+  }
+}
+
+export class PersistentReduceableReducer<T>
+  extends ReduceableReducer<T>
+  implements IHydratableReducer<T> {
+  rehydrate(state: T, data: any): T {
+    return data;
+  }
+  dehydrate(state: T) {
     return state;
   }
 }

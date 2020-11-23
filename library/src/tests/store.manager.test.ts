@@ -3,6 +3,7 @@ import {
   IMergeableAction,
   IReduceableAction,
   MergeableReducer,
+  PersistentReduceableReducer,
   ReduceableReducer,
   ReduxAction,
   StoreManager,
@@ -217,7 +218,7 @@ const rehydrate = jest
   .mockImplementation((state: TestState, data: any) => {
     return data;
   });
-class PersistentReduceableReducer extends ReduceableReducer<TestState> {
+class ReduceableReducer6 extends PersistentReduceableReducer<TestState> {
   rehydrate(state: TestState, data: any): TestState {
     return rehydrate(state, data);
   }
@@ -227,7 +228,7 @@ class PersistentReduceableReducer extends ReduceableReducer<TestState> {
 }
 
 test("hydratable reducer methods are properly invoked", (): void => {
-  const reducer = new PersistentReduceableReducer(initialState);
+  const reducer = new ReduceableReducer6(initialState);
   const storedState = {
     test6: {
       reduced: 7,
