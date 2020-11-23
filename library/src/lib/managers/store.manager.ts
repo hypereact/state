@@ -105,15 +105,15 @@ export class StoreManager {
     const result = this.combinedReduce(state, action);
     if (!this.initialized) {
       this.initialized = true;
-    }
-    let storedState: any = this.storage.getItem("_redux_state_");
-    if (storedState != null) {
-      storedState = JSON.parse(storedState);
-      for (const [key, value] of this.hydrationReducersMap.entries()) {
-        result[key] = (value as IHydratableReducer<any>).rehydrate(
-          result[key],
-          storedState[key]
-        );
+      let storedState: any = this.storage.getItem("_redux_state_");
+      if (storedState != null) {
+        storedState = JSON.parse(storedState);
+        for (const [key, value] of this.hydrationReducersMap.entries()) {
+          result[key] = (value as IHydratableReducer<any>).rehydrate(
+            result[key],
+            storedState[key]
+          );
+        }
       }
     }
     return result;
