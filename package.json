@@ -1,5 +1,5 @@
 {
-  "name": "tesseract-state-workbench",
+  "name": "@tessereact/state-workbench",
   "version": "0.0.1",
   "private": true,
   "scripts": {

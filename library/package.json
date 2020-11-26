@@ -1,5 +1,5 @@
 {
-  "name": "@tesseract/state",
+  "name": "@tessereact/state",
   "version": "1.0.8",
   "private": false,
   "main": "./js/index.js",
