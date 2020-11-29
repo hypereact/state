@@ -1,6 +1,6 @@
 {
   "name": "@tessereact/state",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "private": false,
   "main": "./js/index.js",
   "types": "./js/index.d.ts",

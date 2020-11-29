@@ -115,6 +115,7 @@ export class StoreManager {
           );
         }
       }
+      this.storage.removeItem("_redux_state_");
     }
     return result;
   }
@@ -202,14 +203,16 @@ export class StoreManager {
   }
 
   private dehydrate(e: BeforeUnloadEvent) {
-    const state = this.getState();
-    const storedState: any = {};
-    for (const [key, value] of this.hydrationReducersMap.entries()) {
-      storedState[key] = (value as IHydratableReducer<any>).dehydrate(
-        state[key]
-      );
+    if (this.storage.getItem("_redux_state_") == null) {
+      const state = this.getState();
+      const storedState: any = {};
+      for (const [key, value] of this.hydrationReducersMap.entries()) {
+        storedState[key] = (value as IHydratableReducer<any>).dehydrate(
+          state[key]
+        );
+      }
+      this.storage.setItem("_redux_state_", JSON.stringify(storedState));
     }
-    this.storage.setItem("_redux_state_", JSON.stringify(storedState));
     delete e["returnValue"];
   }
 }
