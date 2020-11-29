@@ -1,5 +1,8 @@
 import { IAction } from "../interfaces/action.interface";
-import { ISliceReducer } from "../interfaces/reducer.interface";
+import {
+  IHydratableReducer,
+  ISliceReducer,
+} from "../interfaces/reducer.interface";
 import { StoreManager } from "../managers/store.manager";
 
 export class MergeableReducer<T> implements ISliceReducer<T> {
@@ -31,6 +34,17 @@ export class MergeableReducer<T> implements ISliceReducer<T> {
       delete nextState.type;
       return nextState;
     }
+    return state;
+  }
+}
+
+export class PersistentMergeableReducer<T>
+  extends MergeableReducer<T>
+  implements IHydratableReducer<T> {
+  rehydrate(state: T, data: any): T {
+    return data;
+  }
+  dehydrate(state: T) {
     return state;
   }
 }

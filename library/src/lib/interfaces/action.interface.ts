@@ -8,6 +8,5 @@ export interface IMergeableAction<T> extends IAction {
 }
 
 export interface IReduceableAction<T> extends IAction {
-  slice?: string;
-  reduce(state: T, action: IAction): T;
+  reduce(state: T): T;
 }

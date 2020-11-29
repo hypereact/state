@@ -53,7 +53,7 @@ class ReduceableAction3 implements IReduceableAction<TestState> {
 
   constructor(public increment: number) {}
 
-  reduce(state: TestState, action: ReduceableAction3) {
+  reduce(state: TestState) {
     if (state.reduced == null) {
       state.reduced = 0;
     }
@@ -65,7 +65,7 @@ class ReduceableAction3 implements IReduceableAction<TestState> {
 class ReduceableAction4 implements IReduceableAction<TestState> {
   constructor(public increment: number) {}
 
-  reduce(state: TestState, action: ReduceableAction4) {
+  reduce(state: TestState) {
     state.reduced += this.increment;
     return state;
   }
