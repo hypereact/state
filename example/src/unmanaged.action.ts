@@ -1,4 +1,4 @@
-import { IAction } from "@tesseract/state";
+import { IAction } from "@tessereact/state";
 
 export interface UnmanagedStatusSetAction extends IAction {
   type: string;

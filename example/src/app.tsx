@@ -1,4 +1,4 @@
-import { ReduxConnect, StoreManager } from "@tesseract/state";
+import { ReduxConnect, StoreManager } from "@tessereact/state";
 import React from "react";
 import { MergeableStatusAndOtherSetAction } from "./mergeable.action";
 import { ReduceableSetIncrementAction } from "./reduceable.action";
@@ -102,7 +102,7 @@ export class App extends React.Component<AppProps> {
               <td>{this.props.mergeable?.count}</td>
               <td>
                 <button onClick={() => this.handleMergeableStatusClick()}>
-                  Set Status
+                  Set Status And Increment Count
                 </button>
               </td>
             </tr>

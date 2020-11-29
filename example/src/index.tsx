@@ -1,4 +1,4 @@
-import { StoreManager } from "@tesseract/state";
+import { StoreManager } from "@tessereact/state";
 import React from "react";
 import * as ReactDOM from "react-dom";
 import { Provider } from "react-redux";

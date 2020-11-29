@@ -1,8 +1,8 @@
 import {
   IReducerConfig,
-  MergeableReducer,
+  PersistentMergeableReducer,
   PersistentReduceableReducer,
-} from "@tesseract/state";
+} from "@tessereact/state";
 import { SliceState } from "./slice.state";
 import { UnmanagedReducer } from "./unmanaged.reducer";
 
@@ -12,7 +12,10 @@ export const reducerConfig: IReducerConfig = {
     status: "initialized",
     count: 0,
   }),
-  mergeable: new MergeableReducer({ status: "initialized", count: 0 }),
+  mergeable: new PersistentMergeableReducer({
+    status: "initialized",
+    count: 0,
+  }),
 };
 
 export enum AppStateSlices {

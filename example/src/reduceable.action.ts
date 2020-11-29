@@ -1,4 +1,4 @@
-import { IReduceableAction, ReduxAction } from "@tesseract/state";
+import { IReduceableAction, ReduxAction } from "@tessereact/state";
 import { AppStateSlices } from "./reducer.config";
 import { SliceState } from "./slice.state";
 
@@ -10,7 +10,7 @@ export class ReduceableSetIncrementAction
   implements IReduceableAction<SliceState> {
   constructor(public status: string, public increment: number) {}
 
-  reduce(state: SliceState, action: ReduceableSetIncrementAction) {
+  reduce(state: SliceState) {
     state.status = this.status;
     state.count += this.increment;
     return state;
