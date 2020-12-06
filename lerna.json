@@ -1,7 +1,7 @@
 {
   "packages": [
     "library/**",
-    "example/**"
+    "playground/**"
   ],
   "version": "0.0.0"
 }
