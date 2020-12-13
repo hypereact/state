@@ -51,8 +51,10 @@ export class StoreManager {
         entries = Object.entries(initialReducers || {});
       }
     }
+    //TODO remove missing/removed reducers
     if (entries) {
       for (const [key, value] of entries) {
+        // TODO skip already configured reduces
         this.addReducer(key, value);
       }
     }
