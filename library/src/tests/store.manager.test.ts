@@ -77,18 +77,19 @@ class MergeableAction5 implements IMergeableAction<TestState> {
 }
 
 beforeEach(() => {
+  StoreManager.dispose();
   reduce1.mockClear();
   reduce2.mockClear();
 });
 
 test("create instance of store manager without reducers", () => {
-  const storeManager: StoreManager = new StoreManager();
+  const storeManager: StoreManager = StoreManager.getInstance();
   expect(storeManager).not.toBeUndefined();
   expect(storeManager).toBeInstanceOf(StoreManager);
 });
 
 test("initialize store with one reducer", () => {
-  const storeManager: StoreManager = new StoreManager({
+  const storeManager: StoreManager = StoreManager.getInstance({
     test1: mockReducer1,
   });
   expect(reduce1).toHaveBeenCalled();
@@ -96,7 +97,7 @@ test("initialize store with one reducer", () => {
 });
 
 test("reduce a json dispatched action", () => {
-  const storeManager: StoreManager = new StoreManager({
+  const storeManager: StoreManager = StoreManager.getInstance({
     test1: mockReducer1,
   });
   expect(reduce1).toHaveBeenCalled();
@@ -117,7 +118,7 @@ test("reduce a json dispatched action", () => {
 });
 
 test("extend an existing store with new reducers", () => {
-  const storeManager: StoreManager = new StoreManager({
+  const storeManager: StoreManager = StoreManager.getInstance({
     test1: mockReducer1,
     test2: mockReducer2,
   });
@@ -141,7 +142,7 @@ test("extend an existing store with new reducers", () => {
 });
 
 test("dispatch with reduce-able action", () => {
-  const storeManager: StoreManager = new StoreManager({
+  const storeManager: StoreManager = StoreManager.getInstance({
     test1: mockReducer1,
     test2: mockReducer2,
     test3: new ReduceableReducer<TestState>(initialState),
@@ -159,7 +160,7 @@ test("dispatch with reduce-able action", () => {
 });
 
 test("dispatch with two reduce-able action", () => {
-  const storeManager: StoreManager = new StoreManager({
+  const storeManager: StoreManager = StoreManager.getInstance({
     test1: mockReducer1,
     test2: mockReducer2,
     test3: new ReduceableReducer<TestState>(initialState),
@@ -184,7 +185,7 @@ test("dispatch with two reduce-able action", () => {
 });
 
 test("dispatch with one reduce-able action with auto reducer registration", () => {
-  const storeManager: StoreManager = new StoreManager({
+  const storeManager: StoreManager = StoreManager.getInstance({
     test1: mockReducer1,
     test2: mockReducer2,
   });
@@ -198,7 +199,7 @@ test("dispatch with one reduce-able action with auto reducer registration", () =
 });
 
 test("dispatch with one merge-able action with merge-able reducer", () => {
-  const storeManager: StoreManager = new StoreManager({
+  const storeManager: StoreManager = StoreManager.getInstance({
     test5: new MergeableReducer(initialState),
   });
   expect(storeManager.getSlices().length).toEqual(1);
@@ -237,14 +238,76 @@ test("hydratable reducer methods are properly invoked", (): void => {
   localStorage.setItem("_redux_state_", JSON.stringify(storedState));
   expect(dehydrate).not.toHaveBeenCalled();
   expect(rehydrate).not.toHaveBeenCalled();
-  const storeManager: StoreManager = new StoreManager({
+  const storeManager1: StoreManager = StoreManager.getInstance({
     test6: reducer,
   });
   expect(dehydrate).not.toHaveBeenCalled();
   expect(rehydrate).toHaveBeenCalledWith(initialState, storedState.test6);
-  expect(storeManager.getSlices().length).toEqual(1);
-  let state6: TestState = storeManager.getState("test6") as TestState;
-  expect(state6.reduced).toEqual(7);
+  expect(storeManager1.getSlices().length).toEqual(1);
+  let state6pre: TestState = storeManager1.getState("test6") as TestState;
+  expect(state6pre.reduced).toEqual(7);
   window.dispatchEvent(new Event("beforeunload"));
   expect(dehydrate).toHaveBeenCalledWith(storedState.test6);
+  const data = JSON.parse(localStorage.getItem("_redux_state_") || "{}");
+  expect(data).toMatchObject({
+    test6: {
+      reduced: 7,
+    },
+  });
+  StoreManager.dispose();
+  const storeManager2: StoreManager = StoreManager.getInstance({
+    test7: reducer,
+  });
+  expect(storeManager2.getSlices().length).toEqual(1);
+  let state6post: TestState = storeManager1.getState("test6") as TestState;
+  expect(state6post.reduced).toEqual(7);
+});
+
+const dehydrateThrow = jest.fn().mockImplementation((state: TestState): any => {
+  throw new Error("fake error");
+});
+
+const rehydrateThrow = jest
+  .fn()
+  .mockImplementation((state: TestState, data: any) => {
+    throw new Error("fake error");
+  });
+class ReduceableReducer7 extends PersistentReduceableReducer<TestState> {
+  rehydrate(state: TestState, data: any): TestState {
+    return rehydrateThrow(state, data);
+  }
+  dehydrate(state: TestState): any {
+    return dehydrateThrow(state);
+  }
+}
+
+test("hydratable reducer faulty methods are properly invoked and handled", (): void => {
+  const reducer = new ReduceableReducer7(initialState);
+  const storedState = {
+    test7: {
+      reduced: 2,
+    },
+  };
+  localStorage.setItem("_redux_state_", JSON.stringify(storedState));
+  expect(dehydrateThrow).not.toHaveBeenCalled();
+  expect(rehydrateThrow).not.toHaveBeenCalled();
+  const storeManager1: StoreManager = StoreManager.getInstance({
+    test7: reducer,
+  });
+  expect(dehydrateThrow).not.toHaveBeenCalled();
+  expect(rehydrateThrow).toHaveBeenCalledWith(initialState, storedState.test7);
+  expect(storeManager1.getSlices().length).toEqual(1);
+  let state7: TestState = storeManager1.getState("test7") as TestState;
+  expect(state7.reduced).toEqual(0);
+  window.dispatchEvent(new Event("beforeunload"));
+  expect(dehydrateThrow).toHaveBeenCalledWith(initialState);
+  const data = JSON.parse(localStorage.getItem("_redux_state_") || "{}");
+  expect(data).toMatchObject({});
+  StoreManager.dispose();
+  const storeManager2: StoreManager = StoreManager.getInstance({
+    test7: reducer,
+  });
+  expect(storeManager2.getSlices().length).toEqual(1);
+  let state6post: TestState = storeManager1.getState("test7") as TestState;
+  expect(state6post.reduced).toEqual(0);
 });
