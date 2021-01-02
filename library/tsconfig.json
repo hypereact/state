@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "ES2015",
     "moduleResolution": "node",
     "target": "ES2015",
     "lib": [
@@ -28,7 +28,7 @@
     "declaration": true,
     "declarationDir": "./build/js",
     "outDir": "./build/js",
-    "sourceMap": true 
+    "sourceMap": false 
   },
   "include": [
     "src/**/*"
@@ -37,6 +37,9 @@
     "**/tests/*.test.ts",
   ],
   "typedocOptions": {
+    "entryPoints": [
+      "src/index.ts"
+    ],
     "mode": "modules",
     "out":"./build/docs"
   }
