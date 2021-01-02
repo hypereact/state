@@ -1,12 +1,12 @@
 import { IAction } from "../interfaces/action.interface";
 import {
   IHydratableReducer,
-  ISliceReducer,
+  ISliceableReducer,
   Reduce,
 } from "../interfaces/reducer.interface";
 import { StoreManager } from "../managers/store.manager";
 
-export class ReduceableReducer<T> implements ISliceReducer<T> {
+export class ReduceableReducer<T> implements ISliceableReducer<T> {
   private initialState: T;
   private slice?: string;
   private manager?: StoreManager;
@@ -15,7 +15,7 @@ export class ReduceableReducer<T> implements ISliceReducer<T> {
     this.initialState = initialState;
   }
 
-  _initialize(slice: string, manager: StoreManager) {
+  initialize(slice: string, manager: StoreManager) {
     this.manager = manager;
     this.slice = slice;
   }
@@ -31,7 +31,7 @@ export class ReduceableReducer<T> implements ISliceReducer<T> {
     ) {
       const reduce:
         | Reduce<T>
-        | undefined = this?.manager?.getReduceByActionType?.(
+        | undefined = this?.manager?.__getReduceByActionType?.(
         action.slice,
         action.type
       );

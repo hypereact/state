@@ -1,5 +1,5 @@
 export class InterfaceUtil {
-  static isActionReduceable(action: any): boolean {
+  static isReduceableAction(action: any): boolean {
     return (
       typeof action.type === "string" &&
       typeof action.slice === "string" &&
@@ -7,7 +7,14 @@ export class InterfaceUtil {
     );
   }
 
-  static isReducerHydratable(reducer: any): boolean {
+  static isSliceableReducer(reducer: any): boolean {
+    return (
+      typeof reducer.reduce === "function" &&
+      typeof reducer.initialize === "function"
+    );
+  }
+
+  static isHydratableReducer(reducer: any): boolean {
     return (
       typeof reducer.reduce === "function" &&
       typeof reducer.rehydrate === "function" &&
