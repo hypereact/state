@@ -4,6 +4,7 @@ updates:
     directory: "/library"
     target-branch: "develop"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "saturday"
     labels:
       - "npm dependencies"
