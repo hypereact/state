@@ -12,7 +12,7 @@
   },
   "scripts": {
     "clean": "rm build -rf",
-    "postbuild": "clear-package-json package.json -o build/package.json --fields scripts && cp .npmignore build && cp LICENSE build && cp README.md build",
+    "postbuild": "clear-package-json package.json -o build/package.json --fields scripts && cp .npmignore build && cp LICENSE.md build && cp README.md build",
     "build": "npm run clean && tsc && npm run docs && npm run postbuild",
     "test": "jest --runInBand",
     "docs": "typedoc",

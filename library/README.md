@@ -1,4 +1,4 @@
-# Hypereact State
+# Hypereact Framework / State
 
 ## Documentation
 
@@ -11,4 +11,6 @@ The documentation is avaiable at https://www.marcominetti.net/projects/codename-
 
 The framework is generally licensed under GNU AGPL 3.0. The license GNU GPL 3.0 is applied to all projects and products that are publicly accredited as users.
 
-More information are available the LICENCE.md file.
+More information are available the [here](LICENCE.md).
+
+> Copyright 2020-2021 Marco Minetti or its contributors. All Rights Reserved.
