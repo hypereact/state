@@ -1,4 +1,4 @@
-import { IReduceableAction, ReduxAction } from "@tessereact/state";
+import { IReduceableAction, ReduxAction } from "@hypereact/state";
 import { AppStateSlices } from "./reducer.config";
 import { SliceState } from "./slice.state";
 

@@ -1,4 +1,4 @@
-import { IReduceableAction, ReduxAction } from "@tessereact/state";
+import { IReduceableAction, ReduxAction } from "@hypereact/state";
 import { ExampleState, PersistedState, Slices } from "./state";
 
 @ReduxAction("SET_EXAMPLE_MESSAGE", Slices.Example)

@@ -1,4 +1,4 @@
-import { ReduxConnect, StoreManager } from "@tessereact/state";
+import { ReduxConnect, StoreManager } from "@hypereact/state";
 import React from "react";
 import { MergeableStatusAndOtherSetAction } from "./mergeable.action";
 import { ReduceableSetIncrementAction } from "./reduceable.action";

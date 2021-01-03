@@ -1,4 +1,4 @@
-import { IMergeableAction, ReduxAction, StoreManager } from "@tessereact/state";
+import { IMergeableAction, ReduxAction, StoreManager } from "@hypereact/state";
 import { AppStateSlices } from "./reducer.config";
 import { SliceState } from "./slice.state";
 

@@ -4,7 +4,7 @@ import {
   PersistentReduceableReducer, ReduceableReducer,
 
   StoreManager
-} from "@tessereact/state";
+} from "@hypereact/state";
 import React from "react";
 import * as ReactDOM from "react-dom";
 import { Provider } from "react-redux";

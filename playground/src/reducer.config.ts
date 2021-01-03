@@ -2,7 +2,7 @@ import {
   IReducerConfig,
   PersistentMergeableReducer,
   PersistentReduceableReducer,
-} from "@tessereact/state";
+} from "@hypereact/state";
 import { SliceState } from "./slice.state";
 import { UnmanagedReducer } from "./unmanaged.reducer";
 

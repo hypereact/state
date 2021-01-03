@@ -1,4 +1,4 @@
-import { IReducer } from "@tessereact/state";
+import { IReducer } from "@hypereact/state";
 import { SliceState } from "./slice.state";
 
 const initialState: SliceState = {

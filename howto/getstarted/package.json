@@ -1,12 +1,12 @@
 {
-  "name": "@tessereact/state-playground",
+  "name": "@hypereact/state-howto-getstarted",
   "version": "0.0.4",
   "private": true,
   "scripts": {
     "start": "webpack serve --env web"
   },
   "dependencies": {
-    "@tessereact/state": "^1.0.15",
+    "@hypereact/state": "^1.0.20",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-redux": "^7.0.0"
