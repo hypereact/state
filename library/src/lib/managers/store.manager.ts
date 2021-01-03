@@ -27,6 +27,7 @@ export class StoreManager {
 
   private storage: Storage = localStorage;
   private storageKey: string = "_redux_state_";
+  private storedState: any = {};
   private hydration?: Function = undefined;
 
   public static getInstance(
@@ -146,21 +147,23 @@ export class StoreManager {
     }
     const result = this.combinedReduce(state, action);
     if (!this.initialized) {
-      this.initialized = true;
-      let storedState: any = this.storage.getItem(this.storageKey);
-      if (storedState != null) {
-        storedState = JSON.parse(storedState);
-        //TODO persist in-memory for lazy registered reducers
-        for (const [key, value] of this.hydrationReducersMap.entries()) {
+      let persistedState: any = this.storage.getItem(this.storageKey);
+      if (persistedState != null) {
+        this.storedState = JSON.parse(persistedState);
+        this.storage.removeItem(this.storageKey);
+      }
+      for (const [key, value] of this.hydrationReducersMap.entries()) {
+        if (this.storedState[key] != null) {
           try {
             result[key] = (value as IHydratableReducer<any>).rehydrate(
               result[key],
-              storedState[key]
+              this.storedState[key]
             );
+            delete this.storedState[key];
           } catch (e) {}
         }
       }
-      this.storage.removeItem(this.storageKey);
+      this.initialized = true;
     }
     return result;
   }
@@ -184,6 +187,7 @@ export class StoreManager {
     this.reducersMap.set(key, reducer);
     this.combinedReducers[key] = reducer.reduce.bind(reducer);
     this.combinedReduce = this.setupCombineReduce();
+    this.initialized = false;
     this.store?.dispatch({
       type: isReplaced ? "@@REDUCER_REPLACE" : "@@REDUCER_ADD",
       key,
@@ -198,12 +202,15 @@ export class StoreManager {
       this.actionsMap.delete(key);
     }
     if (this.hydrationReducersMap.has(key)) {
-      //TODO persist in-memory for lazy registered reducers
-      (this.hydrationReducersMap.get(key) as IHydratableReducer<any>).dehydrate(
-        this.getState(key)
-      );
+      this.storedState[key] = (this.hydrationReducersMap.get(
+        key
+      ) as IHydratableReducer<any>).dehydrate(this.getState(key));
       this.hydrationReducersMap.delete(key);
-      if (this.hydrationReducersMap.size === 0) {
+      debugger;
+      if (
+        this.hydrationReducersMap.size === 0 &&
+        Object.keys(this.storedState).length === 0
+      ) {
         window.removeEventListener("beforeunload", this.hydration as any);
         this.hydration = undefined;
       }
@@ -245,14 +252,13 @@ export class StoreManager {
       return;
     }
     const state = this.getState();
-    const storedState: any = {};
     for (const [key, value] of this.hydrationReducersMap.entries()) {
       try {
-        storedState[key] = (value as IHydratableReducer<any>).dehydrate(
+        this.storedState[key] = (value as IHydratableReducer<any>).dehydrate(
           state[key]
         );
       } catch (e) {}
     }
-    this.storage.setItem(this.storageKey, JSON.stringify(storedState));
+    this.storage.setItem(this.storageKey, JSON.stringify(this.storedState));
   }
 }
