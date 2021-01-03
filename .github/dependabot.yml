@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
-    directory: "/library"
+    directory: "/"
     target-branch: "develop"
     schedule:
       interval: "weekly"
