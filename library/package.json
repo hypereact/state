@@ -1,6 +1,6 @@
 {
   "name": "@hypereact/state",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "private": false,
   "main": "./js/index.js",
   "types": "./js/index.d.ts",
