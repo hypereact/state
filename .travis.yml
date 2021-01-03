@@ -23,4 +23,5 @@ script:
 - npm run build
 - npm run test
 after_script:
+- echo "$TRAVIS_TEST_RESULT"
 - if [[ "$TRAVIS_TEST_RESULT" == 0 ]]; then ./cc-test-reporter upload-coverage -i build/coverage/coverage-final.json; fi
