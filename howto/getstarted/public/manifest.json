@@ -1,0 +1,9 @@
+{
+  "name": "Hypereact State Getting Started",
+  "short_name": "hypereact",
+  "icons": [],
+  "theme_color": "#184fa4",
+  "background_color": "#184fa4",
+  "display": "standalone",
+  "start_url": "."
+}
