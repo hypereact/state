@@ -166,7 +166,11 @@ export class StoreManager {
   }
 
   public addReducer(key: string, reducer: IReducer<any>) {
+    //TODO support reducer replace
     const isReplaced: boolean = this.reducersMap.has(key);
+    if (isReplaced) {
+      return;
+    }
     if (InterfaceUtil.isSliceableReducer(reducer)) {
       (<any>reducer).initialize(key, this);
     }
@@ -182,6 +186,7 @@ export class StoreManager {
     this.combinedReduce = this.setupCombineReduce();
     this.store?.dispatch({
       type: isReplaced ? "@@REDUCER_REPLACE" : "@@REDUCER_ADD",
+      key,
     });
   }
 
@@ -193,6 +198,7 @@ export class StoreManager {
       this.actionsMap.delete(key);
     }
     if (this.hydrationReducersMap.has(key)) {
+      //TODO persist in-memory for lazy registered reducers
       (this.hydrationReducersMap.get(key) as IHydratableReducer<any>).dehydrate(
         this.getState(key)
       );
@@ -206,7 +212,7 @@ export class StoreManager {
     this.removeQueue.push(key);
     delete this.combinedReducers[key];
     this.combinedReduce = this.setupCombineReduce();
-    this.store?.dispatch({ type: "@@REDUCER_REMOVE" });
+    this.store?.dispatch({ type: "@@REDUCER_REMOVE", key });
   }
 
   public __getReduceByActionType(
