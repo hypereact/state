@@ -2,11 +2,18 @@
   "name": "@hypereact/state",
   "version": "1.0.20",
   "private": false,
+  "license": "(GPL-3.0 OR AGPL-3.0)",
   "main": "./js/index.js",
   "types": "./js/index.d.ts",
+  "homepage": "https://www.marcominetti.net/projects/codename-hypereact/state-management",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/hypereact/state.git"
+  },
   "scripts": {
     "clean": "rm build -rf",
-    "build": "npm run clean && tsc && npm run docs && clear-package-json package.json -o build/package.json --fields scripts && cp .npmignore build",
+    "postbuild": "clear-package-json package.json -o build/package.json --fields scripts && cp .npmignore build && cp LICENSE build && cp README.md build",
+    "build": "npm run clean && tsc && npm run docs && npm run postbuild",
     "test": "jest --runInBand",
     "docs": "typedoc",
     "release": "npm version patch && npm run build",
