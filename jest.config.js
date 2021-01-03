@@ -3,6 +3,6 @@ module.exports = {
   testEnvironment: "jsdom",
   modulePathIgnorePatterns: ['<rootDir>/build/'],
   collectCoverage: true,
-  coverageDirectory: "./build/coverage",
+  coverageDirectory: "./coverage",
   coverageReporters: ["lcov"]
 };

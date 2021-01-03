@@ -11,7 +11,7 @@
     "url": "https://github.com/hypereact/state.git"
   },
   "scripts": {
-    "clean": "rm build -rf",
+    "clean": "rm build -rf && rm docs -rf && rm coverage -rf",
     "postbuild": "clear-package-json package.json -o build/package.json --fields scripts && cp .npmignore build && cp LICENSE.md build && cp README.md build",
     "build": "npm run clean && tsc && npm run docs && npm run postbuild",
     "test": "jest --runInBand",
