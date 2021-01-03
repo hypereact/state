@@ -4,5 +4,5 @@ module.exports = {
   modulePathIgnorePatterns: ['<rootDir>/build/'],
   collectCoverage: true,
   coverageDirectory: "./build/coverage",
-  coverageReporters: ["json"]
+  coverageReporters: ["lcov"]
 };
