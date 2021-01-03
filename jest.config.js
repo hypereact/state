@@ -2,6 +2,6 @@ module.exports = {
   preset: "ts-jest",
   testEnvironment: "jsdom",
   collectCoverage: true,
-  coverageDirectory: "./build/lcov",
-  coverageReporters: ["lcov"]
+  coverageDirectory: "./build/coverage",
+  coverageReporters: ["json"]
 };

@@ -1,0 +1,25 @@
+sudo: false
+env:
+  global:
+    - CC_TEST_REPORTER_ID=a189991da7ca782b70bd4a954702fd2079b5348347778bc45afd155021b99533
+language: node_js
+node_js:
+- '12'
+branches:
+  only:
+  - master
+cache:
+  directories:
+  - node_modules
+before_install:
+- npm update
+install:
+- npm install
+before_script:
+- curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+- chmod +x ./cc-test-reporter
+script:
+- npm run build
+- npm run test
+after_script:
+- if [[ "$TRAVIS_TEST_RESULT" == 0 ]]; then ./cc-test-reporter upload-coverage -i build/coverage/coverage-final.json; fi
