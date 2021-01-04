@@ -66,7 +66,6 @@ beforeEach(() => {
 });
 
 test("sync reduce a sync dispatch of a sync json action", () => {
-  StoreManager.dispose();
   const storeManager: StoreManager = StoreManager.getInstance({
     testSync: mockReducerSync,
   });
@@ -87,7 +86,6 @@ test("sync reduce a sync dispatch of a sync json action", () => {
 });
 
 test("sync reduce an async dispatch of an async and a sync json action", async () => {
-  StoreManager.dispose();
   const storeManager: StoreManager = StoreManager.getInstance({
     testSync: mockReducerSync,
   });
@@ -108,3 +106,17 @@ test("sync reduce an async dispatch of an async and a sync json action", async (
   let state2: TestState = storeManager.getState("testSync") as TestState;
   expect(state2.reduced).toEqual(2);
 });
+
+test("async dispatch of an rejecting async json action", async () => {
+  const storeManager: StoreManager = StoreManager.getInstance({
+    testSync: mockReducerSync,
+  });
+  expect(reduceSync).toHaveBeenCalled();
+  reduceSync.mockClear();
+  await expect(storeManager.dispatch(wait(100, new Error("rejected"), true)))
+    .rejects
+    .toThrow();
+  expect(reduceSync).not.toHaveBeenCalled();
+  let state1: TestState = storeManager.getState("testSync") as TestState;
+  expect(state1.reduced).toEqual(0);
+}
