@@ -10,7 +10,8 @@ The documentation is available [here](https://www.marcominetti.net/projects/code
 
 [![NPM Version](https://img.shields.io/npm/v/@hypereact/state)](https://www.npmjs.com/package/@hypereact/state)
 
-[![Build Status](https://travis-ci.com/hypereact/state.svg?branch=master)](https://travis-ci.com/hypereact/state)[![Requirements Status](https://requires.io/github/hypereact/state/requirements.svg?branch=master)](https://requires.io/github/hypereact/state/requirements/?branch=master)
+[![Build Status](https://travis-ci.com/hypereact/state.svg?branch=master)](https://travis-ci.com/hypereact/state)
+[![Requirements Status](https://requires.io/github/hypereact/state/requirements.svg?branch=master)](https://requires.io/github/hypereact/state/requirements/?branch=master)
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/db02e0dfb13022e3b8a3/maintainability)](https://codeclimate.com/github/hypereact/state/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/db02e0dfb13022e3b8a3/test_coverage)](https://codeclimate.com/github/hypereact/state/test_coverage)
