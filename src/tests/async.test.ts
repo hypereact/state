@@ -113,10 +113,10 @@ test("async dispatch of an rejecting async json action", async () => {
   });
   expect(reduceSync).toHaveBeenCalled();
   reduceSync.mockClear();
-  await expect(storeManager.dispatch(wait(100, new Error("rejected"), true)))
-    .rejects
-    .toThrow();
+  await expect(
+    storeManager.dispatch(wait(100, new Error("rejected"), true))
+  ).rejects.toThrow("rejected");
   expect(reduceSync).not.toHaveBeenCalled();
   let state1: TestState = storeManager.getState("testSync") as TestState;
   expect(state1.reduced).toEqual(0);
-}
+});
