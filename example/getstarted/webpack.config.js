@@ -1,11 +1,11 @@
 const CleanWebpackPlugin = require("clean-webpack-plugin").CleanWebpackPlugin;
-const InterpolateWebpackPlugin = require("interpolate-webpack-plugin");
 const DotEnvPlugin = require("dotenv-webpack");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const path = require("path");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
+const path = require("path");
+const escapeStringRegexp = require('escape-string-regexp');
 
 module.exports = (env) => {
   require("dotenv").config();
@@ -25,18 +25,10 @@ module.exports = (env) => {
       path: path.resolve(__dirname, "build"),
     },
     plugins: [
-      new InterpolateWebpackPlugin(
-        Object.keys(process.env).map((key) => {
-          return {
-            key,
-            value: process.env[key],
-          };
-        })
-      ),
+      new CleanWebpackPlugin(),
       new DotEnvPlugin({
         NODE_ENV: mode,
       }),
-      new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
         template: "./public/index.html",
       }),
@@ -55,6 +47,25 @@ module.exports = (env) => {
     module: {
       rules: [
         {
+          test: /\.html$/i,
+          loader: 'html-loader',
+          options: {
+            preprocessor: async (content, loaderContext) => {
+              let result = content;
+              try {
+                for (const key in process.env) {
+                  let regexp = new RegExp(`%${escapeStringRegexp(key)}%`, 'g');
+                  result = result.replace(regexp, process.env[key]);
+                }
+              } catch (error) {
+                await loaderContext.emitError(error);
+                return content;
+              }
+              return result;
+            },
+          },
+        },
+        {
           test: /\.tsx?$/,
           loader: "ts-loader",
           options: { allowTsInNodeModules: true },
@@ -65,25 +76,7 @@ module.exports = (env) => {
     target: "web",
     stats: {
       logging: "warn",
-    },
-    // optimization: {
-    //   splitChunks: {
-    //     chunks: "all",
-    //     maxInitialRequests: Infinity,
-    //     minSize: 0,
-    //     cacheGroups: {
-    //       vendor: {
-    //         test: /[\\/]node_modules[\\/]/,
-    //         name(module) {
-    //           const packageName = module.context.match(
-    //             /[\\/]node_modules[\\/](.*?)([\\/]|$)/
-    //           )[1];
-    //           return `vendor.${packageName.replace("@", "")}`;
-    //         },
-    //       },
-    //     },
-    //   },
-    // },
+    }
   };
 
   if (env.analyze) {

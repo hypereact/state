@@ -7,9 +7,7 @@
     "clean": "rm build -rf",
     "build": "webpack --env prod",
     "start": "webpack serve --env web",
-    "test": "jest",
-    "analyze": "webpack --env prod --env analyze",
-    "release": "npm version patch && webpack --env prod"
+    "analyze": "webpack --env prod --env analyze"
   },
   "dependencies": {
     "@hypereact/state": "^1.1.0",
@@ -30,8 +28,9 @@
     "copy-webpack-plugin": "^6.0.0",
     "dotenv": "^8.0.0",
     "dotenv-webpack": "^5.0.0",
+    "escape-string-regexp": "^4.0.0",
+    "html-loader": "^1.3.2",
     "html-webpack-plugin": "^4.0.0",
-    "interpolate-webpack-plugin": "^2.0.0",
     "jest": "^26.0.0",
     "ts-jest": "^26.0.0",
     "ts-loader": "^8.0.0",
