@@ -1,6 +1,6 @@
 {
   "name": "@hypereact/state",
-  "version": "1.1.23",
+  "version": "1.1.24",
   "private": false,
   "license": "(AGPL-3.0 OR GPL-3.0)",
   "main": "./js/index.js",
@@ -16,7 +16,7 @@
     "build": "npm run clean && tsc && npm run docs && npm run postbuild",
     "test": "jest --runInBand",
     "docs": "typedoc",
-    "release": "npm version patch && npm run build",
+    "release": "npm version --no-commit-hooks patch && npm run build",
     "pack": "npm run build && cd build && npm pack",
     "deploy": "npm run build && cd build && npm publish"
   },
