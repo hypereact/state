@@ -3,3 +3,5 @@ dist
 *.tgz
 .npmrc
 build
+docs
+coverage

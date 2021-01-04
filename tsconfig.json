@@ -40,7 +40,6 @@
     "entryPoints": [
       "src/index.ts"
     ],
-    "mode": "modules",
-    "out":"./build/docs"
+    "out":"./docs"
   }
 }
