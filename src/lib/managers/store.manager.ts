@@ -19,42 +19,52 @@ export class StoreManager {
   private ready: boolean = false;
 
   public static getInstance(
-    reducers?: IReduxConfig,
+    config?: IReduxConfig,
     storage?: Storage
   ): StoreManager {
-    // normalize args
-    let config: Map<string, IReducer<any>>;
-    if (reducers instanceof Map) {
-      config = reducers;
-    } else {
-      config = new Map();
-      for (const [key, value] of Object.entries(reducers || {})) {
-        config.set(key, value);
-      }
-    }
+    let reducers: Map<string, IReducer<any>> = StoreManager.__normalizeConfig(
+      config
+    );
 
     let instance = StoreManager.instance;
     if (instance == null) {
-      // create a new instance
       instance = StoreManager.instance = new StoreManager(
-        config.entries(),
+        reducers.entries(),
         storage
       );
-    } else if (reducers != null) {
-      // reconfigure current instance (remove/add reducers)
-      for (const key of instance.reducers.keys()) {
-        if (!config.has(key)) {
-          instance.removeReducer(key);
-        }
-      }
-      for (const [key, value] of config.entries()) {
-        if (!instance.reducers.has(key)) {
-          instance.addReducer(key, value);
-        }
-      }
+    } else if (config != null) {
+      StoreManager.instance!.__reconfigure(reducers);
     }
 
     return instance;
+  }
+
+  private static __normalizeConfig(
+    config: IReduxConfig = {}
+  ): Map<string, IReducer<any>> {
+    let reducers: Map<string, IReducer<any>>;
+    if (config instanceof Map) {
+      reducers = config;
+    } else {
+      reducers = new Map();
+      for (const [key, value] of Object.entries(config)) {
+        reducers.set(key, value);
+      }
+    }
+    return reducers;
+  }
+
+  private __reconfigure(config: Map<string, IReducer<any>>) {
+    for (const key of this.reducers.keys()) {
+      if (!config.has(key)) {
+        this.removeReducer(key);
+      }
+    }
+    for (const [key, value] of config.entries()) {
+      if (!this.reducers.has(key)) {
+        this.addReducer(key, value);
+      }
+    }
   }
 
   public static dispose() {
@@ -82,9 +92,11 @@ export class StoreManager {
       this.storageState = JSON.parse(persistedState);
       this.storage.removeItem(this.storageKey);
     }
+
     for (const [key, value] of entries) {
       this.addReducer(key, value);
     }
+
     this.store = createStore(
       this.reduce.bind(this),
       (<any>window)?.__REDUX_DEVTOOLS_EXTENSION__?.()
