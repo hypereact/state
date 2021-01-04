@@ -2,7 +2,7 @@
   "name": "@hypereact/state",
   "version": "1.0.22",
   "private": false,
-  "license": "(GPL-3.0 OR AGPL-3.0)",
+  "license": "(AGPL-3.0 OR GPL-3.0)",
   "main": "./js/index.js",
   "types": "./js/index.d.ts",
   "homepage": "https://www.marcominetti.net/projects/codename-hypereact/state-management",
