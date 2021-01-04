@@ -16,7 +16,7 @@
     "build": "npm run clean && tsc && npm run docs && npm run postbuild",
     "test": "jest --runInBand",
     "docs": "typedoc",
-    "release": "npm version patch && npm run build",
+    "release": "npm version --no-commit-hooks patch && npm run build",
     "pack": "npm run build && cd build && npm pack",
     "deploy": "npm run build && cd build && npm publish"
   },
