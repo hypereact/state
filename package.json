@@ -16,7 +16,7 @@
     "build": "npm run clean && tsc && npm run docs && npm run postbuild",
     "test": "jest --runInBand",
     "docs": "typedoc",
-    "release": "npm version --no-commit-hooks patch && npm run build",
+    "release": "generate-release -n -t patch",
     "pack": "npm run build && cd build && npm pack",
     "deploy": "npm run build && cd build && npm publish"
   },
@@ -25,6 +25,7 @@
     "@types/node": "^14.14.0",
     "@types/react-redux": "^7.1.0",
     "clean-publish": "^1.1.0",
+    "generate-release": "^1.1.1",
     "jest": "^26.0.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
