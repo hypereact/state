@@ -1,12 +1,12 @@
 import {
-  IReducerConfig,
+  IReduxConfig,
   PersistentMergeableReducer,
   PersistentReduceableReducer,
 } from "@hypereact/state";
 import { SliceState } from "./slice.state";
 import { UnmanagedReducer } from "./unmanaged.reducer";
 
-export const reducerConfig: IReducerConfig = {
+export const reducerConfig: IReduxConfig = {
   unmanaged: new UnmanagedReducer(),
   reduceable: new PersistentReduceableReducer({
     status: "initialized",

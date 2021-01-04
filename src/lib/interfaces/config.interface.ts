@@ -1,5 +1,5 @@
 import { IReducer } from "./reducer.interface";
 
-export interface IReducerConfig {
+export interface IReduxConfig {
   [slice: string]: IReducer<any>;
 }

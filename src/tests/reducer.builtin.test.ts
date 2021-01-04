@@ -1,5 +1,4 @@
 import {
-  IMergeableAction,
   IReduceableAction,
   MergeableReducer,
   ReduceableReducer,
@@ -39,7 +38,7 @@ class ReduceableAction4 implements IReduceableAction<TestState> {
 }
 
 @ReduxAction("MERGABLE_ACTION_TEST", "test5")
-class MergeableAction5 implements IMergeableAction<TestState> {
+class MergeableAction5 {
   constructor(public reduced: number) {}
 }
 

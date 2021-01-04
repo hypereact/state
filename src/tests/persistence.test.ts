@@ -93,6 +93,7 @@ test("hydratable reducer persistence methods are properly invoked", (): void => 
       reduced: 7,
     },
   });
+  localStorage.removeItem("_redux_state_");
   StoreManager.dispose();
   const storeManager2: StoreManager = StoreManager.getInstance({
     test6: reducer,

@@ -1,11 +1,7 @@
-import { Action, AnyAction, combineReducers, createStore, Store } from "redux";
-import { IAction } from "../interfaces/action.interface";
-import { IReducerConfig } from "../interfaces/config.interface";
-import {
-  IHydratableReducer,
-  IReducer,
-  Reduce,
-} from "../interfaces/reducer.interface";
+import { AnyAction, createStore, Store } from "redux";
+import { IAction, ISliceableAction } from "../interfaces/action.interface";
+import { IReduxConfig } from "../interfaces/config.interface";
+import { IHydratableReducer, IReducer } from "../interfaces/reducer.interface";
 import { ReduceableReducer } from "../reducers/reduceable.reducer";
 import { InterfaceUtil } from "../utils/interface.util";
 
@@ -13,74 +9,77 @@ export class StoreManager {
   private static instance?: StoreManager;
 
   private store!: Store<any, AnyAction>;
-  private initialized: boolean = false;
-  private reducersMap: Map<string, IReducer<any>> = new Map();
-  private hydrationReducersMap: Map<string, IReducer<any>> = new Map();
-  private actionsMap: Map<string, Map<string, Reduce<any>>> = new Map();
-  private combinedReducers: any = {};
-  private combinedReduce: any;
-  private removeQueue: string[] = [];
-  private fallbackReduce: Reduce<any> = (state: any, action: IAction): any => {
-    return state || {};
-  };
-  private removeFallback: boolean = false;
 
   private storage: Storage = localStorage;
   private storageKey: string = "_redux_state_";
-  private storedState: any = {};
-  private hydration?: Function = undefined;
+  private storageState: any = {};
+  private beforeUnloadListener?: (ev: BeforeUnloadEvent) => any = undefined;
+
+  private reducers: Map<string, IReducer<any>> = new Map();
+  private ready: boolean = false;
 
   public static getInstance(
-    reducers?: IReducerConfig,
+    config?: IReduxConfig,
     storage?: Storage
   ): StoreManager {
-    // normalize args
-    let config: Map<string, IReducer<any>>;
-    if (reducers instanceof Map) {
-      config = reducers;
-    } else {
-      config = new Map();
-      for (const [key, value] of Object.entries(reducers || {})) {
-        config.set(key, value);
-      }
-    }
+    let reducers: Map<string, IReducer<any>> = StoreManager.__normalizeConfig(
+      config
+    );
 
     let instance = StoreManager.instance;
     if (instance == null) {
-      // create a new instance
       instance = StoreManager.instance = new StoreManager(
-        config.entries(),
+        reducers.entries(),
         storage
       );
-    } else if (reducers != null) {
-      // reconfigure current instance (remove/add reducers)
-      for (const key of instance.reducersMap.keys()) {
-        if (!config.has(key)) {
-          instance.removeReducer(key);
-        }
-      }
-      for (const [key, value] of config.entries()) {
-        if (!instance.reducersMap.has(key)) {
-          instance.addReducer(key, value);
-        }
-      }
+    } else if (config != null) {
+      StoreManager.instance!.__reconfigure(reducers);
     }
 
     return instance;
+  }
+
+  private static __normalizeConfig(
+    config: IReduxConfig = {}
+  ): Map<string, IReducer<any>> {
+    let reducers: Map<string, IReducer<any>>;
+    if (config instanceof Map) {
+      reducers = config;
+    } else {
+      reducers = new Map();
+      for (const [key, value] of Object.entries(config)) {
+        reducers.set(key, value);
+      }
+    }
+    return reducers;
+  }
+
+  private __reconfigure(config: Map<string, IReducer<any>>) {
+    for (const key of this.reducers.keys()) {
+      if (!config.has(key)) {
+        this.removeReducer(key);
+      }
+    }
+    for (const [key, value] of config.entries()) {
+      if (!this.reducers.has(key)) {
+        this.addReducer(key, value);
+      }
+    }
   }
 
   public static dispose() {
     if (StoreManager.instance != null) {
       StoreManager.instance.__dispose();
     }
+    StoreManager.instance = undefined;
   }
 
   private __dispose() {
-    if (this.hydration != null) {
-      window.removeEventListener("beforeunload", this.hydration as any);
-      this.hydration = undefined;
+    if (this.beforeUnloadListener != null) {
+      window.removeEventListener("beforeunload", this.beforeUnloadListener);
+      this.beforeUnloadListener = undefined;
     }
-    StoreManager.instance = undefined;
+    this.dehydrate();
   }
 
   constructor(
@@ -88,14 +87,23 @@ export class StoreManager {
     storage?: Storage
   ) {
     this.storage = storage || this.storage;
+    let persistedState: any = this.storage.getItem(this.storageKey);
+    if (persistedState != null) {
+      this.storageState = JSON.parse(persistedState);
+      this.storage.removeItem(this.storageKey);
+    }
+
     for (const [key, value] of entries) {
       this.addReducer(key, value);
     }
-    this.combinedReduce = this.setupCombineReduce();
+
     this.store = createStore(
       this.reduce.bind(this),
       (<any>window)?.__REDUX_DEVTOOLS_EXTENSION__?.()
     );
+
+    this.beforeUnloadListener = this.handleBeforeUnload.bind(this);
+    window.addEventListener("beforeunload", this.beforeUnloadListener);
   }
 
   public getStore(): Store<any, AnyAction> {
@@ -103,162 +111,139 @@ export class StoreManager {
   }
 
   isInitialized(): boolean {
-    return this.initialized;
+    return this.ready;
   }
 
   public getSlices(): string[] {
-    return [...this.reducersMap.keys()];
+    return [...this.reducers.keys()];
   }
 
   public getState(key?: string): any | undefined {
     if (key) {
-      return this.store?.getState()?.[key] as any;
+      return this.store?.getState()?.[key];
     } else {
-      return this.store?.getState() as any;
+      return this.store?.getState();
     }
   }
 
-  public dispatch(action: any): void {
+  public dispatch(action: any | Promise<any>): void | Promise<void> {
+    if (action instanceof Promise) {
+      return this.dispatchAsync(action);
+    } else {
+      this.dispatchSync(action);
+    }
+  }
+
+  private async dispatchAsync(actionPromise: Promise<any>): Promise<void> {
+    const action: any = await actionPromise;
+    this.dispatchSync(action);
+  }
+
+  private dispatchSync(action: any): void {
     if (InterfaceUtil.isReduceableAction(action)) {
-      if (!this.reducersMap.has(action.slice)) {
+      if (!this.reducers.has(action.slice)) {
         this.addReducer(action.slice, new ReduceableReducer<any>({}));
       }
-      if (
-        action.type != null &&
-        !this.actionsMap?.get(action.slice)?.has(action.type)
-      ) {
-        this.addActionReducer(action.slice, action.type, action.reduce);
+      const reducer: ReduceableReducer<any> = this.reducers.get(
+        action.slice
+      ) as ReduceableReducer<any>;
+      if (action.type != null && !reducer?.actions.has(action.type)) {
+        reducer?.actions.set(action.type, action.reduce);
       }
     }
     const pojo = JSON.parse(JSON.stringify(action));
     this.store?.dispatch(pojo);
   }
 
-  private reduce(state: any, action: Action) {
-    if (this.removeQueue.length > 0) {
-      state = { ...state };
-      for (let key of this.removeQueue) {
-        delete state[key];
+  private reduce(state: any, action: IAction) {
+    const nextState: any = JSON.parse(JSON.stringify(state || {}));
+    if (InterfaceUtil.isSliceAction(action)) {
+      const slice: string = (action as ISliceableAction<any>).slice!;
+      const reducer: IReducer<any> | undefined = this.reducers.get(slice);
+      if (reducer != null) {
+        this.reduceSlice(nextState, slice, reducer, action);
+      } else {
+        delete nextState[slice];
       }
-      this.removeQueue = [];
-    }
-    if (state != null && this.removeFallback) {
-      delete state["_"];
-    }
-    const result = this.combinedReduce(state, action);
-    if (!this.initialized) {
-      let persistedState: any = this.storage.getItem(this.storageKey);
-      if (persistedState != null) {
-        this.storedState = JSON.parse(persistedState);
-        this.storage.removeItem(this.storageKey);
+    } else {
+      for (const [slice, reducer] of this.reducers) {
+        this.reduceSlice(nextState, slice, reducer, action);
       }
-      for (const [key, value] of this.hydrationReducersMap.entries()) {
-        if (this.storedState[key] != null) {
-          try {
-            result[key] = (value as IHydratableReducer<any>).rehydrate(
-              result[key],
-              this.storedState[key]
-            );
-            delete this.storedState[key];
-          } catch (e) {}
-        }
-      }
-      this.initialized = true;
     }
-    return result;
+    if (!this.ready) {
+      this.ready = true;
+    }
+    return nextState;
   }
 
-  public addReducer(key: string, reducer: IReducer<any>) {
+  private reduceSlice(
+    nextState: any,
+    slice: string,
+    reducer: IReducer<any>,
+    action: IAction
+  ): void {
+    nextState[slice] = reducer.reduce(nextState[slice], action);
+    if (InterfaceUtil.isHydratableReducer(reducer)) {
+      if (this.storageState[slice] != null) {
+        try {
+          nextState[slice] = (reducer as IHydratableReducer<any>).rehydrate(
+            nextState[slice],
+            this.storageState[slice]
+          );
+          delete this.storageState[slice];
+        } catch (e) {}
+      }
+    }
+  }
+
+  public addReducer(slice: string, reducer: IReducer<any>) {
     //TODO support reducer replace
-    const isReplaced: boolean = this.reducersMap.has(key);
+    const isReplaced: boolean = this.reducers.has(slice);
     if (isReplaced) {
       return;
     }
-    if (InterfaceUtil.isSliceableReducer(reducer)) {
-      (<any>reducer).initialize(key, this);
-    }
-    if (InterfaceUtil.isHydratableReducer(reducer)) {
-      if (this.hydration == null) {
-        this.hydration = this.dehydrate.bind(this);
-        window.addEventListener("beforeunload", this.hydration as any);
-      }
-      this.hydrationReducersMap.set(key, reducer);
-    }
-    this.reducersMap.set(key, reducer);
-    this.combinedReducers[key] = reducer.reduce.bind(reducer);
-    this.combinedReduce = this.setupCombineReduce();
-    this.initialized = false;
+    this.reducers.set(slice, reducer);
+    this.ready = false;
     this.store?.dispatch({
       type: isReplaced ? "@@REDUCER_REPLACE" : "@@REDUCER_ADD",
-      key,
+      key: slice,
     });
   }
 
-  public removeReducer(key: string) {
-    if (!this.reducersMap.has(key)) {
+  public removeReducer(slice: string) {
+    const reducer: IReducer<any> | undefined = this.reducers.get(slice);
+    if (reducer == null) {
       return;
     }
-    if (this.actionsMap.has(key)) {
-      this.actionsMap.delete(key);
+    if (InterfaceUtil.isHydratableReducer(reducer)) {
+      this.storageState[slice] = (reducer as IHydratableReducer<any>).dehydrate(
+        this.getState(slice)
+      );
     }
-    if (this.hydrationReducersMap.has(key)) {
-      this.storedState[key] = (this.hydrationReducersMap.get(
-        key
-      ) as IHydratableReducer<any>).dehydrate(this.getState(key));
-      this.hydrationReducersMap.delete(key);
-      debugger;
-      if (
-        this.hydrationReducersMap.size === 0 &&
-        Object.keys(this.storedState).length === 0
-      ) {
-        window.removeEventListener("beforeunload", this.hydration as any);
-        this.hydration = undefined;
-      }
-    }
-    this.reducersMap.delete(key);
-    this.removeQueue.push(key);
-    delete this.combinedReducers[key];
-    this.combinedReduce = this.setupCombineReduce();
-    this.store?.dispatch({ type: "@@REDUCER_REMOVE", key });
+    this.reducers.delete(slice);
+    this.store?.dispatch({ type: "@@REDUCER_REMOVE", slice });
   }
 
-  public __getReduceByActionType(
-    slice: string,
-    type: string
-  ): Reduce<any> | undefined {
-    return this.actionsMap.get(slice)?.get(type);
+  private handleBeforeUnload(ev: BeforeUnloadEvent) {
+    delete ev["returnValue"];
+    this.dehydrate();
   }
 
-  private setupCombineReduce(): any {
-    if (this.reducersMap.size === 0) {
-      this.removeFallback = true;
-      return combineReducers({ _: this.fallbackReduce });
-    } else {
-      return combineReducers(this.combinedReducers);
-    }
-  }
-
-  private addActionReducer(slice: string, type: string, reduce: Reduce<any>) {
-    if (!this.actionsMap.has(slice)) {
-      this.actionsMap.set(slice, new Map());
-    }
-    this.actionsMap.get(slice)?.set(type, reduce);
-  }
-
-  private dehydrate(event: BeforeUnloadEvent) {
-    delete event["returnValue"];
+  private dehydrate() {
     if (this.storage.getItem(this.storageKey) != null) {
       this.storage.removeItem(this.storageKey);
       return;
     }
     const state = this.getState();
-    for (const [key, value] of this.hydrationReducersMap.entries()) {
-      try {
-        this.storedState[key] = (value as IHydratableReducer<any>).dehydrate(
-          state[key]
-        );
-      } catch (e) {}
+    for (const [slice, reducer] of this.reducers) {
+      if (InterfaceUtil.isHydratableReducer(reducer)) {
+        try {
+          this.storageState[
+            slice
+          ] = (reducer as IHydratableReducer<any>).dehydrate(state[slice]);
+        } catch (e) {}
+      }
     }
-    this.storage.setItem(this.storageKey, JSON.stringify(this.storedState));
+    this.storage.setItem(this.storageKey, JSON.stringify(this.storageState));
   }
 }

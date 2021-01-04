@@ -12,7 +12,7 @@
     "release": "npm version patch && webpack --env prod"
   },
   "dependencies": {
-    "@hypereact/state": "^1.0.20",
+    "@hypereact/state": "^1.1.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-redux": "^7.0.0"

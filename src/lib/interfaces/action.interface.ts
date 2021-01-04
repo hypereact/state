@@ -3,7 +3,7 @@ export interface IAction {
   [props: string]: any;
 }
 
-export interface IMergeableAction<T> extends IAction {
+export interface ISliceableAction<T> extends IAction {
   slice?: string;
 }
 
