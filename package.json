@@ -1,6 +1,6 @@
 {
   "name": "@hypereact/state",
-  "version": "1.0.23",
+  "version": "1.1.23",
   "private": false,
   "license": "(AGPL-3.0 OR GPL-3.0)",
   "main": "./js/index.js",

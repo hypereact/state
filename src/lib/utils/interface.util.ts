@@ -1,16 +1,11 @@
 export class InterfaceUtil {
-  static isReduceableAction(action: any): boolean {
-    return (
-      typeof action.type === "string" &&
-      typeof action.slice === "string" &&
-      typeof action.reduce === "function"
-    );
+  static isSliceAction(action: any): boolean {
+    return typeof action.type === "string" && typeof action.slice === "string";
   }
 
-  static isSliceableReducer(reducer: any): boolean {
+  static isReduceableAction(action: any): boolean {
     return (
-      typeof reducer.reduce === "function" &&
-      typeof reducer.initialize === "function"
+      InterfaceUtil.isSliceAction(action) && typeof action.reduce === "function"
     );
   }
 

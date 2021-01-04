@@ -64,7 +64,6 @@ test("create instance of store with one reducer", () => {
 });
 
 test("reduce a json dispatched action", () => {
-  StoreManager.dispose();
   const storeManager: StoreManager = StoreManager.getInstance({
     test1: mockReducer1,
   });

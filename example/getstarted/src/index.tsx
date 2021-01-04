@@ -1,8 +1,6 @@
 import {
-  IReducerConfig,
-
+  IReduxConfig,
   PersistentReduceableReducer, ReduceableReducer,
-
   StoreManager
 } from "@hypereact/state";
 import React from "react";
@@ -12,7 +10,7 @@ import { App } from "./app";
 import { initialExampleState, initialPersistedState } from "./state";
 
 
-export const reduxConfig: IReducerConfig = {
+export const reduxConfig: IReduxConfig = {
   example: new ReduceableReducer(initialExampleState),
   persistent: new PersistentReduceableReducer(initialPersistedState)
 }

@@ -94,7 +94,6 @@ test("remove a reducer and dispatch an action", () => {
   expect(storeManager.getSlices().length).toEqual(2);
   let state1pre: TestState = storeManager.getState("test1") as TestState;
   storeManager.removeReducer("test2");
-  expect(reduce1).toHaveBeenCalled();
   expect(storeManager.getSlices().length).toEqual(1);
   let state1post1: TestState = storeManager.getState("test1") as TestState;
   let state2pre: TestState = storeManager.getState("test2") as TestState;
