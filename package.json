@@ -16,7 +16,7 @@
     "build": "npm run clean && tsc && npm run docs && npm run postbuild",
     "test": "jest --runInBand",
     "docs": "typedoc",
-    "release": "generate-release -n -t patch",
+    "release": "generate-release -n -t patch -m 'release {version}'",
     "pack": "npm run build && cd build && npm pack",
     "deploy": "npm run build && cd build && npm publish"
   },
