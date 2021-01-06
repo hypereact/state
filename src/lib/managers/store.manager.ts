@@ -18,7 +18,6 @@ export class StoreManager {
   private reducers: Map<string, IReducer<any>> = new Map();
 
   private readyMap: Map<string, Promise<any>> = new Map();
-  private ready: boolean = false;
 
   public static getInstance(
     config?: IReduxConfig,
@@ -113,13 +112,11 @@ export class StoreManager {
   }
 
   public isReady(slice?: string): boolean {
-    return slice
-      ? this.readyMap.has(slice)
-      : this.ready && this.readyMap.size === 0;
+    return slice ? this.readyMap.has(slice) : this.readyMap.size === 0;
   }
 
   public async waitUntilReady(slice?: string): Promise<void> {
-    if (slice != null) {
+    if (slice) {
       if (this.readyMap.has(slice)) {
         await this.readyMap.get(slice);
       }
@@ -133,19 +130,13 @@ export class StoreManager {
   }
 
   public getState(key?: string): any | undefined {
-    if (key) {
-      return this.store?.getState()?.[key];
-    } else {
-      return this.store?.getState();
-    }
+    return key ? this.store?.getState()?.[key] : this.store?.getState();
   }
 
   public dispatch(action: any | Promise<any>): void | Promise<void> {
-    if (action instanceof Promise) {
-      return this.dispatchAsync(action);
-    } else {
-      this.dispatchSync(action);
-    }
+    action instanceof Promise
+      ? this.dispatchAsync(action)
+      : this.dispatchSync(action);
   }
 
   private async dispatchAsync(actionPromise: Promise<any>): Promise<void> {
@@ -188,9 +179,6 @@ export class StoreManager {
         this.reduceSlice(nextState, slice, reducer, action);
       }
     }
-    if (!this.ready) {
-      this.ready = true;
-    }
     return nextState;
   }
 
@@ -232,15 +220,12 @@ export class StoreManager {
   }
 
   public addReducer(slice: string, reducer: IReducer<any>) {
-    //TODO support reducer replace
-    const isReplaced: boolean = this.reducers.has(slice);
-    if (isReplaced) {
+    if (this.reducers.has(slice)) {
       return;
     }
     this.reducers.set(slice, reducer);
-    this.ready = false;
     this.store?.dispatch({
-      type: isReplaced ? "@@REDUCER_REPLACE" : "@@REDUCER_ADD",
+      type: "@@REDUCER_ADD",
       key: slice,
     });
   }
