@@ -152,7 +152,7 @@ export class StoreManager {
       const reducer: ReduceableReducer<any> = this.reducers.get(
         action.slice
       ) as ReduceableReducer<any>;
-      if (action.type != null && !reducer?.actions.has(action.type)) {
+      if (!reducer?.actions.has(action.type)) {
         reducer?.actions.set(action.type, action.reduce);
       }
     }
