@@ -134,7 +134,7 @@ export class StoreManager {
   }
 
   public dispatch(action: any | Promise<any>): void | Promise<void> {
-    action instanceof Promise
+    return action instanceof Promise
       ? this.dispatchAsync(action)
       : this.dispatchSync(action);
   }
