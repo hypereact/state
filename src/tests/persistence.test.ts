@@ -67,7 +67,7 @@ beforeEach(() => {
   localStorage.removeItem("_redux_state_");
 });
 
-test("hydratable reducer persistence methods are properly invoked", (): void => {
+test("hydratable reducer persistence methods are properly invoked", () => {
   const reducer = new ReduceableReducerOk(initialState);
   const storedState = {
     test6: {
@@ -103,7 +103,7 @@ test("hydratable reducer persistence methods are properly invoked", (): void => 
   expect(state6post.reduced).toEqual(7);
 });
 
-test("hydratable reducer persistence methods are properly invoked and exceptions are handled", (): void => {
+test("hydratable reducer persistence methods are properly invoked and exceptions are handled", () => {
   const reducer = new ReduceableReducerThrow(initialState);
   const storedState = {
     test7: {
@@ -134,7 +134,7 @@ test("hydratable reducer persistence methods are properly invoked and exceptions
   expect(state6post.reduced).toEqual(0);
 });
 
-test("dynamic configuration invokes hydratable reducer persistence methods", (): void => {
+test("dynamic configuration invokes hydratable reducer persistence methods", () => {
   const storeManager = StoreManager.getInstance();
 
   expect(dehydrate).not.toHaveBeenCalled();

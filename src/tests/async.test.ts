@@ -1,4 +1,20 @@
-import { IAction, StoreManager } from "..";
+import { IAction, PersistentReduceableReducer, StoreManager } from "..";
+
+const wait = (
+  ms: number,
+  result: any = null,
+  fail: boolean = false
+): Promise<any> => {
+  return new Promise(function (resolve, reject) {
+    setTimeout(function () {
+      if (!fail) {
+        resolve(result);
+      } else {
+        reject(result);
+      }
+    }, ms);
+  });
+};
 
 interface TestState {
   reduced: number;
@@ -43,21 +59,16 @@ const MockReducerAsync = jest.fn().mockImplementation(() => ({
 }));
 const mockReducerAsync = new MockReducerAsync();
 
-const wait = (
-  ms: number,
-  result: any = null,
-  fail: boolean = false
-): Promise<any> => {
-  return new Promise(function (resolve, reject) {
-    setTimeout(function () {
-      if (!fail) {
-        resolve(result);
-      } else {
-        reject(result);
-      }
-    }, ms);
-  });
-};
+const rehydrate = jest.fn().mockImplementation(
+  async (state: TestState, data: any): Promise<TestState> => {
+    return await wait(100, data);
+  }
+);
+class ReduceableReducerAsync extends PersistentReduceableReducer<TestState> {
+  async rehydrate(state: TestState, data: any): Promise<TestState> {
+    return await rehydrate(state, data);
+  }
+}
 
 beforeEach(() => {
   StoreManager.dispose();
@@ -119,4 +130,43 @@ test("async dispatch of an rejecting async json action", async () => {
   expect(reduceSync).not.toHaveBeenCalled();
   let state1: TestState = storeManager.getState("testSync") as TestState;
   expect(state1.reduced).toEqual(0);
+});
+
+test("hydratable reducer persistence methods are properly invoked", async () => {
+  const reducer = new ReduceableReducerAsync(initialState);
+  const storedState = {
+    test6: {
+      reduced: 7,
+    },
+  };
+  localStorage.setItem("_redux_state_", JSON.stringify(storedState));
+  expect(rehydrate).not.toHaveBeenCalled();
+  const storeManager1: StoreManager = StoreManager.getInstance({
+    test6: reducer,
+  });
+  expect(rehydrate).toHaveBeenCalledWith(initialState, storedState.test6);
+  const rehydratePromise = rehydrate.mock.results[0].value;
+  expect(rehydratePromise).toBeInstanceOf(Promise);
+  expect(storeManager1.getSlices().length).toEqual(1);
+  let state6init: TestState = storeManager1.getState("test6") as TestState;
+  expect(state6init.reduced).toEqual(0);
+  await storeManager1.waitUntilReady();
+  let state6await: TestState = storeManager1.getState("test6") as TestState;
+  expect(state6await.reduced).toEqual(7);
+  window.dispatchEvent(new Event("beforeunload"));
+  const data = JSON.parse(localStorage.getItem("_redux_state_") || "{}");
+  expect(data).toMatchObject({
+    test6: {
+      reduced: 7,
+    },
+  });
+  localStorage.removeItem("_redux_state_");
+  StoreManager.dispose();
+  const storeManager2: StoreManager = StoreManager.getInstance({
+    test6: reducer,
+  });
+  expect(storeManager2.getSlices().length).toEqual(1);
+  await storeManager2.waitUntilReady();
+  let state6post: TestState = storeManager2.getState("test6") as TestState;
+  expect(state6post.reduced).toEqual(7);
 });

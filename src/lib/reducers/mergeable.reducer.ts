@@ -26,10 +26,10 @@ export class MergeableReducer<T> implements IReducer<T> {
 export class PersistentMergeableReducer<T>
   extends MergeableReducer<T>
   implements IHydratableReducer<T> {
-  rehydrate(state: T, data: any): T {
+  rehydrate(state: T, data: any): T | Promise<T> {
     return data;
   }
-  dehydrate(state: T) {
+  dehydrate(state: T): any {
     return state;
   }
 }

@@ -16,7 +16,8 @@ export class StoreManager {
   private beforeUnloadListener?: (ev: BeforeUnloadEvent) => any = undefined;
 
   private reducers: Map<string, IReducer<any>> = new Map();
-  private ready: boolean = false;
+
+  private readyMap: Map<string, Promise<any>> = new Map();
 
   public static getInstance(
     config?: IReduxConfig,
@@ -110,8 +111,18 @@ export class StoreManager {
     return this.store;
   }
 
-  isInitialized(): boolean {
-    return this.ready;
+  public isReady(slice?: string): boolean {
+    return slice ? this.readyMap.has(slice) : this.readyMap.size === 0;
+  }
+
+  public async waitUntilReady(slice?: string): Promise<void> {
+    if (slice) {
+      if (this.readyMap.has(slice)) {
+        await this.readyMap.get(slice);
+      }
+    } else {
+      await Promise.all(this.readyMap.values());
+    }
   }
 
   public getSlices(): string[] {
@@ -119,19 +130,13 @@ export class StoreManager {
   }
 
   public getState(key?: string): any | undefined {
-    if (key) {
-      return this.store?.getState()?.[key];
-    } else {
-      return this.store?.getState();
-    }
+    return key ? this.store?.getState()?.[key] : this.store?.getState();
   }
 
   public dispatch(action: any | Promise<any>): void | Promise<void> {
-    if (action instanceof Promise) {
-      return this.dispatchAsync(action);
-    } else {
-      this.dispatchSync(action);
-    }
+    return action instanceof Promise
+      ? this.dispatchAsync(action)
+      : this.dispatchSync(action);
   }
 
   private async dispatchAsync(actionPromise: Promise<any>): Promise<void> {
@@ -157,8 +162,12 @@ export class StoreManager {
 
   private reduce(state: any, action: IAction) {
     const nextState: any = JSON.parse(JSON.stringify(state || {}));
+    if (action.type?.startsWith("@@..")) {
+      nextState[action.slice] = action.state;
+      return nextState;
+    }
     if (InterfaceUtil.isSliceAction(action)) {
-      const slice: string = (action as ISliceableAction<any>).slice!;
+      const slice: string = (action as ISliceableAction).slice!;
       const reducer: IReducer<any> | undefined = this.reducers.get(slice);
       if (reducer != null) {
         this.reduceSlice(nextState, slice, reducer, action);
@@ -170,9 +179,6 @@ export class StoreManager {
         this.reduceSlice(nextState, slice, reducer, action);
       }
     }
-    if (!this.ready) {
-      this.ready = true;
-    }
     return nextState;
   }
 
@@ -180,32 +186,50 @@ export class StoreManager {
     nextState: any,
     slice: string,
     reducer: IReducer<any>,
-    action: IAction
+    action: ISliceableAction
   ): void {
     nextState[slice] = reducer.reduce(nextState[slice], action);
-    if (InterfaceUtil.isHydratableReducer(reducer)) {
-      if (this.storageState[slice] != null) {
-        try {
-          nextState[slice] = (reducer as IHydratableReducer<any>).rehydrate(
-            nextState[slice],
-            this.storageState[slice]
-          );
-          delete this.storageState[slice];
-        } catch (e) {}
-      }
+    if (
+      InterfaceUtil.isHydratableReducer(reducer) &&
+      this.storageState[slice] != null
+    ) {
+      try {
+        const rehydrationResult = (reducer as IHydratableReducer<any>).rehydrate(
+          nextState[slice],
+          this.storageState[slice]
+        );
+        if (rehydrationResult instanceof Promise) {
+          this.lazyRehydrate(rehydrationResult, action.type, slice);
+        } else {
+          nextState[slice] = rehydrationResult;
+        }
+        delete this.storageState[slice];
+      } catch (e) {}
     }
   }
 
+  private lazyRehydrate(promise: Promise<any>, type: string, slice: string) {
+    const readyPromise = new Promise((resolve, reject) => {
+      promise.then((futureStateSlice) => {
+        this.dispatchSync({
+          type: `@@..${type}`,
+          slice,
+          state: futureStateSlice,
+        });
+        resolve(futureStateSlice);
+        this.readyMap.delete(slice);
+      });
+    });
+    this.readyMap.set(slice, readyPromise);
+  }
+
   public addReducer(slice: string, reducer: IReducer<any>) {
-    //TODO support reducer replace
-    const isReplaced: boolean = this.reducers.has(slice);
-    if (isReplaced) {
+    if (this.reducers.has(slice)) {
       return;
     }
     this.reducers.set(slice, reducer);
-    this.ready = false;
     this.store?.dispatch({
-      type: isReplaced ? "@@REDUCER_REPLACE" : "@@REDUCER_ADD",
+      type: "@@REDUCER_ADD",
       key: slice,
     });
   }

@@ -1,9 +1,9 @@
 export interface IAction {
-  type?: string;
+  type: string;
   [props: string]: any;
 }
 
-export interface ISliceableAction<T> extends IAction {
+export interface ISliceableAction extends IAction {
   slice?: string;
 }
 
