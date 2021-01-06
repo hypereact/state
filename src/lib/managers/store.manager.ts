@@ -199,7 +199,7 @@ export class StoreManager {
           this.storageState[slice]
         );
         if (rehydrationResult instanceof Promise) {
-          this.lazyRehydrate(rehydrationResult, action.type, slice);
+          this.lazyRehydrate(rehydrationResult, action.type!, slice);
         } else {
           nextState[slice] = rehydrationResult;
         }

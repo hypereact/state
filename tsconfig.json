@@ -31,10 +31,7 @@
     "sourceMap": false 
   },
   "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "**/tests/*.test.ts",
+    "src/**/*.ts"
   ],
   "typedocOptions": {
     "entryPoints": [
