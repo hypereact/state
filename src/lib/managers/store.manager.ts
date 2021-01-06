@@ -167,7 +167,7 @@ export class StoreManager {
       return nextState;
     }
     if (InterfaceUtil.isSliceAction(action)) {
-      const slice: string = (action as ISliceableAction<any>).slice!;
+      const slice: string = (action as ISliceableAction).slice!;
       const reducer: IReducer<any> | undefined = this.reducers.get(slice);
       if (reducer != null) {
         this.reduceSlice(nextState, slice, reducer, action);
@@ -186,7 +186,7 @@ export class StoreManager {
     nextState: any,
     slice: string,
     reducer: IReducer<any>,
-    action: IAction
+    action: ISliceableAction
   ): void {
     nextState[slice] = reducer.reduce(nextState[slice], action);
     if (
@@ -199,24 +199,28 @@ export class StoreManager {
           this.storageState[slice]
         );
         if (rehydrationResult instanceof Promise) {
-          const readyPromise = new Promise((resolve, reject) => {
-            rehydrationResult.then((futureStateSlice) => {
-              this.dispatchSync({
-                type: `@@..${action.type}`,
-                slice,
-                state: futureStateSlice,
-              });
-              resolve(futureStateSlice);
-              this.readyMap.delete(slice);
-            });
-          });
-          this.readyMap.set(slice, readyPromise);
+          this.lazyRehydrate(rehydrationResult, action.type, slice);
         } else {
           nextState[slice] = rehydrationResult;
         }
         delete this.storageState[slice];
       } catch (e) {}
     }
+  }
+
+  private lazyRehydrate(promise: Promise<any>, type: string, slice: string) {
+    const readyPromise = new Promise((resolve, reject) => {
+      promise.then((futureStateSlice) => {
+        this.dispatchSync({
+          type: `@@..${type}`,
+          slice,
+          state: futureStateSlice,
+        });
+        resolve(futureStateSlice);
+        this.readyMap.delete(slice);
+      });
+    });
+    this.readyMap.set(slice, readyPromise);
   }
 
   public addReducer(slice: string, reducer: IReducer<any>) {
