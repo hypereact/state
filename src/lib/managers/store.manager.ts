@@ -16,6 +16,8 @@ export class StoreManager {
   private beforeUnloadListener?: (ev: BeforeUnloadEvent) => any = undefined;
 
   private reducers: Map<string, IReducer<any>> = new Map();
+
+  private readyMap: Map<string, Promise<any>> = new Map();
   private ready: boolean = false;
 
   public static getInstance(
@@ -110,8 +112,20 @@ export class StoreManager {
     return this.store;
   }
 
-  isInitialized(): boolean {
-    return this.ready;
+  public isReady(slice?: string): boolean {
+    return slice
+      ? this.readyMap.has(slice)
+      : this.ready && this.readyMap.size === 0;
+  }
+
+  public async waitUntilReady(slice?: string): Promise<void> {
+    if (slice != null) {
+      if (this.readyMap.has(slice)) {
+        await this.readyMap.get(slice);
+      }
+    } else {
+      await Promise.all(this.readyMap.values());
+    }
   }
 
   public getSlices(): string[] {
@@ -157,6 +171,10 @@ export class StoreManager {
 
   private reduce(state: any, action: IAction) {
     const nextState: any = JSON.parse(JSON.stringify(state || {}));
+    if (action.type?.startsWith("@@..")) {
+      nextState[action.slice] = action.state;
+      return nextState;
+    }
     if (InterfaceUtil.isSliceAction(action)) {
       const slice: string = (action as ISliceableAction<any>).slice!;
       const reducer: IReducer<any> | undefined = this.reducers.get(slice);
@@ -183,16 +201,33 @@ export class StoreManager {
     action: IAction
   ): void {
     nextState[slice] = reducer.reduce(nextState[slice], action);
-    if (InterfaceUtil.isHydratableReducer(reducer)) {
-      if (this.storageState[slice] != null) {
-        try {
-          nextState[slice] = (reducer as IHydratableReducer<any>).rehydrate(
-            nextState[slice],
-            this.storageState[slice]
-          );
-          delete this.storageState[slice];
-        } catch (e) {}
-      }
+    if (
+      InterfaceUtil.isHydratableReducer(reducer) &&
+      this.storageState[slice] != null
+    ) {
+      try {
+        const rehydrationResult = (reducer as IHydratableReducer<any>).rehydrate(
+          nextState[slice],
+          this.storageState[slice]
+        );
+        if (rehydrationResult instanceof Promise) {
+          const readyPromise = new Promise((resolve, reject) => {
+            rehydrationResult.then((futureStateSlice) => {
+              this.dispatchSync({
+                type: `@@..${action.type}`,
+                slice,
+                state: futureStateSlice,
+              });
+              resolve(futureStateSlice);
+              this.readyMap.delete(slice);
+            });
+          });
+          this.readyMap.set(slice, readyPromise);
+        } else {
+          nextState[slice] = rehydrationResult;
+        }
+        delete this.storageState[slice];
+      } catch (e) {}
     }
   }
 
