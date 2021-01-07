@@ -12,11 +12,14 @@ export class MergeableReducer<T> implements IReducer<T> {
     if (state == null) {
       return this.initialState;
     }
-    const nextState: any = JSON.parse(JSON.stringify(state));
-    Object.assign(nextState, action);
-    delete nextState.slice;
-    delete nextState.type;
-    return nextState;
+    if (action.slice) {
+      const nextState: any = JSON.parse(JSON.stringify(state));
+      Object.assign(nextState, action);
+      delete nextState.slice;
+      delete nextState.type;
+      return nextState;
+    }
+    return state;
   }
 }
 

@@ -17,8 +17,8 @@ export class ReduceableReducer<T> implements IReducer<T> {
     if (state == null) {
       return this.initialState;
     }
-    if (action.type != null) {
-      const reduce: Reduce<T> | undefined = this.actions.get(action.type);
+    if (action.slice != null) {
+      const reduce: Reduce<T> | undefined = this.actions.get(action.type!);
       if (reduce != null) {
         return reduce.call(action, state, action);
       }
