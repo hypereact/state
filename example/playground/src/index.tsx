@@ -3,7 +3,7 @@ import React from "react";
 import * as ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { App } from "./app";
-import { reducerConfig } from "./reducer.config";
+import { reducerConfig } from "./redux.config";
 
 (async () => {
   // get first instance of store manager while configuring initial reducers
