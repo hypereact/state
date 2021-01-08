@@ -112,7 +112,7 @@ export class StoreManager {
   }
 
   public isReady(slice?: string): boolean {
-    return slice ? this.readyMap.has(slice) : this.readyMap.size === 0;
+    return slice ? !this.readyMap.has(slice) : this.readyMap.size === 0;
   }
 
   public async waitUntilReady(slice?: string): Promise<void> {
@@ -162,7 +162,7 @@ export class StoreManager {
 
   private reduce(state: any, action: IAction) {
     const nextState: any = JSON.parse(JSON.stringify(state || {}));
-    if (action.type?.startsWith("@@..")) {
+    if (action.type?.startsWith("...")) {
       nextState[action.slice] = action.state;
       return nextState;
     }
@@ -211,13 +211,13 @@ export class StoreManager {
   private lazyRehydrate(promise: Promise<any>, type: string, slice: string) {
     const readyPromise = new Promise((resolve, reject) => {
       promise.then((futureStateSlice) => {
+        this.readyMap.delete(slice);
         this.dispatchSync({
-          type: `@@..${type}`,
+          type: `...${type}`,
           slice,
           state: futureStateSlice,
         });
         resolve(futureStateSlice);
-        this.readyMap.delete(slice);
       });
     });
     this.readyMap.set(slice, readyPromise);
