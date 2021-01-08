@@ -5,3 +5,4 @@ dist
 build
 docs
 coverage
+example/**/package-lock.json

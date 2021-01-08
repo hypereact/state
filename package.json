@@ -1,6 +1,6 @@
 {
   "name": "@hypereact/state",
-  "version": "1.1.30",
+  "version": "1.1.31",
   "private": false,
   "license": "(AGPL-3.0 OR GPL-3.0)",
   "main": "./js/index.js",
@@ -25,7 +25,7 @@
     "@types/node": "^14.14.0",
     "@types/react-redux": "^7.1.0",
     "clean-publish": "^1.1.0",
-    "generate-release": "^1.1.1",
+    "generate-release": "^1.1.0",
     "jest": "^26.0.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",

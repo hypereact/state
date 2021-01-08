@@ -1,5 +1,5 @@
 import { ISliceableAction, ReduxAction, StoreManager } from "@hypereact/state";
-import { AppStateSlices } from "./reducer.config";
+import { AppStateSlices } from "./redux.config";
 import { SliceState } from "./slice.state";
 
 @ReduxAction("MERGEABLE_STATUS_SET", AppStateSlices.MERGEABLE)

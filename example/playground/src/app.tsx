@@ -1,8 +1,11 @@
 import { ReduxConnect, StoreManager } from "@hypereact/state";
 import React from "react";
 import { MergeableStatusAndOtherSetAction } from "./mergeable.action";
-import { ReduceableSetIncrementAction } from "./reduceable.action";
-import { AppStateSlices, ReduxState } from "./reducer.config";
+import {
+  LazyHydratedSetIncrementAction,
+  ReduceableSetIncrementAction,
+} from "./reduceable.action";
+import { AppStateSlices, ReduxState } from "./redux.config";
 import { SliceState } from "./slice.state";
 import { UnmanagedStatusSetAction } from "./unmanaged.action";
 
@@ -11,6 +14,7 @@ interface AppProps {
   unmanaged?: SliceState;
   reduceable?: SliceState;
   mergeable?: SliceState;
+  lazy?: SliceState;
 }
 
 // decorate with the react-redux mapStateToProps as argument
@@ -32,13 +36,13 @@ export class App extends React.Component<AppProps> {
     console.log(this.storeManager.getState());
   }
 
-  private handleUnmanagedCountClick(increment: number) {
+  private handleUnmanagedCountClick() {
     const currentState: SliceState = this.storeManager.getState(
       AppStateSlices.UNMANAGED
     );
     this.storeManager.dispatch({
       type: "UNMANAGED_COUNT_SET",
-      count: currentState.count + increment,
+      count: currentState.count + 1,
     });
     console.log(this.storeManager.getState());
   }
@@ -57,15 +61,33 @@ export class App extends React.Component<AppProps> {
     console.log(this.storeManager.getState());
   }
 
-  private handleStartReduceable() {
+  private handleLazyHydratedClick(increment: number) {
+    this.storeManager.dispatch(
+      new LazyHydratedSetIncrementAction("dispatched", increment)
+    );
+    console.log(this.storeManager.getState());
+  }
+
+  private handleLoopActions() {
     setInterval(() => {
-      this.storeManager.dispatch(
-        new ReduceableSetIncrementAction("dispatched", 2)
-      );
+      this.storeManager.dispatch({
+        type: "UNMANAGED_COUNT_SET",
+        count: this.storeManager.getState(AppStateSlices.UNMANAGED).count + 1,
+      });
       this.storeManager.dispatch(
         new MergeableStatusAndOtherSetAction("dispatched", false)
       );
+      this.storeManager.dispatch(
+        new ReduceableSetIncrementAction("dispatched", 1)
+      );
+      this.storeManager.dispatch(
+        new LazyHydratedSetIncrementAction("dispatched", 1)
+      );
     }, 1000);
+  }
+
+  private handleClearPersistence() {
+    window.localStorage.setItem("_redux_state_", "");
   }
 
   render() {
@@ -77,6 +99,7 @@ export class App extends React.Component<AppProps> {
           <thead>
             <tr>
               <th>Slice</th>
+              <th>Ready</th>
               <th>State (.status)</th>
               <th>State (.count)</th>
               <th>Actions</th>
@@ -85,19 +108,25 @@ export class App extends React.Component<AppProps> {
           <tbody>
             <tr>
               <td>unmanaged</td>
+              <td>
+                {String(this.storeManager.isReady(AppStateSlices.UNMANAGED))}
+              </td>
               <td>{this.props.unmanaged?.status}</td>
               <td>{this.props.unmanaged?.count}</td>
               <td>
                 <button onClick={() => this.handleUnmanagedStatusClick()}>
                   Set Status
                 </button>
-                <button onClick={() => this.handleUnmanagedCountClick(2)}>
+                <button onClick={() => this.handleUnmanagedCountClick()}>
                   Increment Count By
                 </button>
               </td>
             </tr>
             <tr>
               <td>mergeable</td>
+              <td>
+                {String(this.storeManager.isReady(AppStateSlices.MERGEABLE))}
+              </td>
               <td>{this.props.mergeable?.status}</td>
               <td>{this.props.mergeable?.count}</td>
               <td>
@@ -108,17 +137,37 @@ export class App extends React.Component<AppProps> {
             </tr>
             <tr>
               <td>reduceable</td>
+              <td>
+                {String(this.storeManager.isReady(AppStateSlices.REDUCEABLE))}
+              </td>
               <td>{this.props.reduceable?.status}</td>
               <td>{this.props.reduceable?.count}</td>
               <td>
-                <button onClick={() => this.handleReduceableClick(2)}>
+                <button onClick={() => this.handleReduceableClick(1)}>
+                  Set Status And Increment Count By
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>lazy rehydrated</td>
+              <td>
+                {String(this.storeManager.isReady(AppStateSlices.LAZYHYDRATED))}
+              </td>
+              <td>{this.props.lazy?.status}</td>
+              <td>{this.props.lazy?.count}</td>
+              <td>
+                <button onClick={() => this.handleLazyHydratedClick(1)}>
                   Set Status And Increment Count By
                 </button>
               </td>
             </tr>
           </tbody>
         </table>
-        <button onClick={() => this.handleStartReduceable()}>Loop</button>
+        <br />
+        <button onClick={() => this.handleLoopActions()}>Loop actions</button>
+        <button onClick={() => this.handleClearPersistence()}>
+          Clear persistence
+        </button>
       </>
     );
   }
