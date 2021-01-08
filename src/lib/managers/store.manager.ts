@@ -195,7 +195,7 @@ export class StoreManager {
     ) {
       try {
         const rehydrationResult = (reducer as IHydratableReducer<any>).rehydrate(
-          nextState[slice],
+          JSON.parse(JSON.stringify(nextState[slice])),
           this.storageState[slice]
         );
         if (rehydrationResult instanceof Promise) {
@@ -210,15 +210,20 @@ export class StoreManager {
 
   private lazyRehydrate(promise: Promise<any>, type: string, slice: string) {
     const readyPromise = new Promise((resolve, reject) => {
-      promise.then((futureStateSlice) => {
-        this.readyMap.delete(slice);
-        this.dispatchSync({
-          type: `...${type}`,
-          slice,
-          state: futureStateSlice,
+      promise
+        .then((futureStateSlice) => {
+          this.readyMap.delete(slice);
+          this.dispatchSync({
+            type: `...${type}`,
+            slice,
+            state: futureStateSlice,
+          });
+          resolve(futureStateSlice);
+        })
+        .catch((error) => {
+          this.readyMap.delete(slice);
+          resolve(error);
         });
-        resolve(futureStateSlice);
-      });
     });
     this.readyMap.set(slice, readyPromise);
   }
