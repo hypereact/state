@@ -92,7 +92,7 @@ export class StoreManager {
   ) {
     this.storage = storage || this.storage;
     if (clearStorage === true) {
-      this.clearStorage();
+      this.storage.removeItem(this.storageKey);
     }
     let persistedState: any = this.storage.getItem(this.storageKey);
     if (persistedState != null) {
@@ -259,7 +259,7 @@ export class StoreManager {
     this.store?.dispatch({ type: "@@REDUCER_REMOVE", slice });
   }
 
-  public clearStorage() {
+  public suspendStorage() {
     this.storage.setItem(this.storageKey, "{}");
   }
 

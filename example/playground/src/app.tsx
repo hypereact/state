@@ -87,7 +87,7 @@ export class App extends React.Component<AppProps> {
   }
 
   private handleClearPersistence() {
-    this.storeManager.clearStorage();
+    this.storeManager.suspendStorage();
   }
 
   render() {

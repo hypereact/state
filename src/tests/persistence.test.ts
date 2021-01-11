@@ -2,7 +2,7 @@ import {
   IReduceableAction,
   PersistentReduceableReducer,
   ReduxAction,
-  StoreManager,
+  StoreManager
 } from "..";
 
 interface TestState {
@@ -211,7 +211,7 @@ test("persisted state can be ignored and cleared", () => {
   let state6pre: TestState = storeManager1.getState("test6") as TestState;
   expect(state6pre.reduced).toEqual(0);
   storeManager1.dispatch(new ReduceableAction(7));
-  storeManager1.clearStorage();
+  storeManager1.suspendStorage();
   window.dispatchEvent(new Event("beforeunload"));
   const data = JSON.parse(localStorage.getItem("_redux_state_") || "{}");
   expect(data).toMatchObject({});
