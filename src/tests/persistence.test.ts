@@ -2,7 +2,7 @@ import {
   IReduceableAction,
   PersistentReduceableReducer,
   ReduxAction,
-  StoreManager,
+  StoreManager
 } from "..";
 
 interface TestState {
@@ -186,4 +186,41 @@ test("dynamic configuration invokes hydratable reducer persistence methods", () 
   expect(storeManager2.getSlices().length).toEqual(1);
   let state6post: TestState = storeManager2.getState("test") as TestState;
   expect(state6post.reduced).toEqual(2);
+});
+
+test("persisted state can be ignored and cleared", () => {
+  const reducer = new ReduceableReducerOk(initialState);
+  const storedState = {
+    test6: {
+      reduced: 0,
+    },
+  };
+  localStorage.setItem("_redux_state_", JSON.stringify(storedState));
+  expect(dehydrate).not.toHaveBeenCalled();
+  expect(rehydrate).not.toHaveBeenCalled();
+  const storeManager1: StoreManager = StoreManager.getInstance(
+    {
+      test6: reducer,
+    },
+    undefined,
+    true
+  );
+  expect(dehydrate).not.toHaveBeenCalled();
+  expect(rehydrate).not.toHaveBeenCalled();
+  expect(storeManager1.getSlices().length).toEqual(1);
+  let state6pre: TestState = storeManager1.getState("test6") as TestState;
+  expect(state6pre.reduced).toEqual(0);
+  storeManager1.dispatch(new ReduceableAction(7));
+  storeManager1.suspendStorage();
+  window.dispatchEvent(new Event("beforeunload"));
+  const data = JSON.parse(localStorage.getItem("_redux_state_") || "{}");
+  expect(data).toMatchObject({});
+  localStorage.removeItem("_redux_state_");
+  StoreManager.dispose();
+  const storeManager2: StoreManager = StoreManager.getInstance({
+    test6: reducer,
+  });
+  expect(storeManager2.getSlices().length).toEqual(1);
+  let state6post: TestState = storeManager2.getState("test6") as TestState;
+  expect(state6post.reduced).toEqual(0);
 });
