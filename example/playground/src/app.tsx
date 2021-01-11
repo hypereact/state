@@ -3,7 +3,7 @@ import React from "react";
 import { MergeableStatusAndOtherSetAction } from "./mergeable.action";
 import {
   LazyHydratedSetIncrementAction,
-  ReduceableSetIncrementAction,
+  ReduceableSetIncrementAction
 } from "./reduceable.action";
 import { AppStateSlices, ReduxState } from "./redux.config";
 import { SliceState } from "./slice.state";
@@ -87,7 +87,7 @@ export class App extends React.Component<AppProps> {
   }
 
   private handleClearPersistence() {
-    window.localStorage.setItem("_redux_state_", "");
+    this.storeManager.clearStorage();
   }
 
   render() {

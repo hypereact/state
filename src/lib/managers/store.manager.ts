@@ -21,7 +21,8 @@ export class StoreManager {
 
   public static getInstance(
     config?: IReduxConfig,
-    storage?: Storage
+    storage?: Storage,
+    clearStorage: boolean = false
   ): StoreManager {
     let reducers: Map<string, IReducer<any>> = StoreManager.__normalizeConfig(
       config
@@ -31,7 +32,8 @@ export class StoreManager {
     if (instance == null) {
       instance = StoreManager.instance = new StoreManager(
         reducers.entries(),
-        storage
+        storage,
+        clearStorage
       );
     } else if (config != null) {
       StoreManager.instance!.__reconfigure(reducers);
@@ -85,9 +87,13 @@ export class StoreManager {
 
   constructor(
     entries: IterableIterator<[any, IReducer<any>]>,
-    storage?: Storage
+    storage?: Storage,
+    clearStorage: boolean = false
   ) {
     this.storage = storage || this.storage;
+    if (clearStorage === true) {
+      this.clearStorage();
+    }
     let persistedState: any = this.storage.getItem(this.storageKey);
     if (persistedState != null) {
       this.storageState = JSON.parse(persistedState);
@@ -251,6 +257,10 @@ export class StoreManager {
     }
     this.reducers.delete(slice);
     this.store?.dispatch({ type: "@@REDUCER_REMOVE", slice });
+  }
+
+  public clearStorage() {
+    this.storage.setItem(this.storageKey, "{}");
   }
 
   private handleBeforeUnload(ev: BeforeUnloadEvent) {
