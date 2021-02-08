@@ -4,6 +4,7 @@ import { IReduxConfig } from "../interfaces/config.interface";
 import { IHydratableReducer, IReducer } from "../interfaces/reducer.interface";
 import { ReduceableReducer } from "../reducers/reduceable.reducer";
 import { InterfaceUtil } from "../utils/interface.util";
+import { freeze } from "../utils/object.util";
 
 export class StoreManager {
   private static instance?: StoreManager;
@@ -13,6 +14,7 @@ export class StoreManager {
   private storage: Storage = localStorage;
   private storageKey: string = "_redux_state_";
   private storageState: any = {};
+  private initialStorageState: any = {};
   private beforeUnloadListener?: (ev: BeforeUnloadEvent) => any = undefined;
 
   private reducers: Map<string, IReducer<any>> = new Map();
@@ -97,6 +99,10 @@ export class StoreManager {
     let persistedState: any = this.storage.getItem(this.storageKey);
     if (persistedState != null) {
       this.storageState = JSON.parse(persistedState);
+      this.initialStorageState = JSON.parse(persistedState);
+      for (const key in Object.getOwnPropertyNames(this.initialStorageState)) {
+        freeze(this.initialStorageState[key]);
+      }
       this.storage.removeItem(this.storageKey);
     }
 
@@ -202,7 +208,8 @@ export class StoreManager {
       try {
         const rehydrationResult = (reducer as IHydratableReducer<any>).rehydrate(
           JSON.parse(JSON.stringify(nextState[slice])),
-          this.storageState[slice]
+          this.storageState[slice],
+          this.initialStorageState
         );
         if (rehydrationResult instanceof Promise) {
           this.lazyRehydrate(rehydrationResult, action.type!, slice);
@@ -254,6 +261,10 @@ export class StoreManager {
       this.storageState[slice] = (reducer as IHydratableReducer<any>).dehydrate(
         this.getState(slice)
       );
+      this.initialStorageState[slice] = JSON.parse(
+        JSON.stringify(this.storageState[slice])
+      );
+      freeze(this.initialStorageState[slice]);
     }
     this.reducers.delete(slice);
     this.store?.dispatch({ type: "@@REDUCER_REMOVE", slice });
