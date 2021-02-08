@@ -2,7 +2,7 @@ import {
   IReduceableAction,
   PersistentReduceableReducer,
   ReduxAction,
-  StoreManager
+  StoreManager,
 } from "..";
 
 interface TestState {
@@ -18,12 +18,12 @@ const dehydrate = jest.fn().mockImplementation((state: TestState): any => {
 
 const rehydrate = jest
   .fn()
-  .mockImplementation((state: TestState, data: any) => {
+  .mockImplementation((state: TestState, data: any, root: any) => {
     return data;
   });
 class ReduceableReducerOk extends PersistentReduceableReducer<TestState> {
-  rehydrate(state: TestState, data: any): TestState {
-    return rehydrate(state, data);
+  rehydrate(state: TestState, data: any, root: any): TestState {
+    return rehydrate(state, data, root);
   }
   dehydrate(state: TestState): any {
     return dehydrate(state);
@@ -36,12 +36,12 @@ const dehydrateThrow = jest.fn().mockImplementation((state: TestState): any => {
 
 const rehydrateThrow = jest
   .fn()
-  .mockImplementation((state: TestState, data: any) => {
+  .mockImplementation((state: TestState, data: any, root: any) => {
     throw new Error("fake error");
   });
 class ReduceableReducerThrow extends PersistentReduceableReducer<TestState> {
-  rehydrate(state: TestState, data: any): TestState {
-    return rehydrateThrow(state, data);
+  rehydrate(state: TestState, data: any, root: any): TestState {
+    return rehydrateThrow(state, data, root);
   }
   dehydrate(state: TestState): any {
     return dehydrateThrow(state);
@@ -81,7 +81,11 @@ test("hydratable reducer persistence methods are properly invoked", () => {
     test6: reducer,
   });
   expect(dehydrate).not.toHaveBeenCalled();
-  expect(rehydrate).toHaveBeenCalledWith(initialState, storedState.test6);
+  expect(rehydrate).toHaveBeenCalledWith(
+    initialState,
+    storedState.test6,
+    storedState
+  );
   expect(storeManager1.getSlices().length).toEqual(1);
   let state6pre: TestState = storeManager1.getState("test6") as TestState;
   expect(state6pre.reduced).toEqual(7);
@@ -117,7 +121,11 @@ test("hydratable reducer persistence methods are properly invoked and exceptions
     test7: reducer,
   });
   expect(dehydrateThrow).not.toHaveBeenCalled();
-  expect(rehydrateThrow).toHaveBeenCalledWith(initialState, storedState.test7);
+  expect(rehydrateThrow).toHaveBeenCalledWith(
+    initialState,
+    storedState.test7,
+    storedState
+  );
   expect(storeManager1.getSlices().length).toEqual(1);
   let state7: TestState = storeManager1.getState("test7") as TestState;
   expect(state7.reduced).toEqual(0);
@@ -158,7 +166,9 @@ test("dynamic configuration invokes hydratable reducer persistence methods", () 
   dehydrate.mockClear();
   rehydrate.mockClear();
   storeManager.addReducer("test", reducer);
-  expect(rehydrate).toHaveBeenCalledWith(initialState, statepost);
+  expect(rehydrate).toHaveBeenCalledWith(initialState, statepost, {
+    test: { reduced: 3 },
+  });
 
   let statepostpersist: TestState = storeManager.getState("test") as TestState;
   expect(statepostpersist.reduced).toEqual(3);

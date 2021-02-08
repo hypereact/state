@@ -30,7 +30,7 @@ export class ReduceableReducer<T> implements IReducer<T> {
 export class PersistentReduceableReducer<T>
   extends ReduceableReducer<T>
   implements IHydratableReducer<T> {
-  rehydrate(state: T, data: any): T | Promise<T> {
+  rehydrate(state: T, data: any, root: any): T | Promise<T> {
     return data;
   }
   dehydrate(state: T): any {
