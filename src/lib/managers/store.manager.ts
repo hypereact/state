@@ -209,7 +209,8 @@ export class StoreManager {
         const rehydrationResult = (reducer as IHydratableReducer<any>).rehydrate(
           JSON.parse(JSON.stringify(nextState[slice])),
           this.storageState[slice],
-          this.initialStorageState
+          this.initialStorageState,
+          this
         );
         if (rehydrationResult instanceof Promise) {
           this.lazyRehydrate(rehydrationResult, action.type!, slice);
@@ -259,7 +260,8 @@ export class StoreManager {
     }
     if (InterfaceUtil.isHydratableReducer(reducer)) {
       this.storageState[slice] = (reducer as IHydratableReducer<any>).dehydrate(
-        this.getState(slice)
+        this.getState(slice),
+        this
       );
       this.initialStorageState[slice] = JSON.parse(
         JSON.stringify(this.storageState[slice])
@@ -290,7 +292,10 @@ export class StoreManager {
         try {
           this.storageState[
             slice
-          ] = (reducer as IHydratableReducer<any>).dehydrate(state[slice]);
+          ] = (reducer as IHydratableReducer<any>).dehydrate(
+            state[slice],
+            this
+          );
         } catch (e) {}
       }
     }

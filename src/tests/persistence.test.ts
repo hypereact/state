@@ -12,38 +12,56 @@ const initialState: TestState = {
   reduced: 0,
 };
 
-const dehydrate = jest.fn().mockImplementation((state: TestState): any => {
+const dehydrate = jest.fn().mockImplementation((
+  state: TestState /*, manager: StoreManager*/
+): any => {
   return state;
 });
 
-const rehydrate = jest
-  .fn()
-  .mockImplementation((state: TestState, data: any, root: any) => {
-    return data;
-  });
+const rehydrate = jest.fn().mockImplementation((
+  state: TestState,
+  data: any,
+  root: any /*, manager: StoreManager*/
+) => {
+  return data;
+});
 class ReduceableReducerOk extends PersistentReduceableReducer<TestState> {
-  rehydrate(state: TestState, data: any, root: any): TestState {
+  rehydrate(
+    state: TestState,
+    data: any,
+    root: any,
+    manager: StoreManager
+  ): TestState {
     return rehydrate(state, data, root);
   }
-  dehydrate(state: TestState): any {
+  dehydrate(state: TestState, manager: StoreManager): any {
     return dehydrate(state);
   }
 }
 
-const dehydrateThrow = jest.fn().mockImplementation((state: TestState): any => {
-  throw new Error("fake error");
-});
+const dehydrateThrow = jest
+  .fn()
+  .mockImplementation((state: TestState, manager: StoreManager): any => {
+    throw new Error("fake error");
+  });
 
 const rehydrateThrow = jest
   .fn()
-  .mockImplementation((state: TestState, data: any, root: any) => {
-    throw new Error("fake error");
-  });
+  .mockImplementation(
+    (state: TestState, data: any, root: any, manager: StoreManager) => {
+      throw new Error("fake error");
+    }
+  );
 class ReduceableReducerThrow extends PersistentReduceableReducer<TestState> {
-  rehydrate(state: TestState, data: any, root: any): TestState {
+  rehydrate(
+    state: TestState,
+    data: any,
+    root: any,
+    manager: StoreManager
+  ): TestState {
     return rehydrateThrow(state, data, root);
   }
-  dehydrate(state: TestState): any {
+  dehydrate(state: TestState, manager: StoreManager): any {
     return dehydrateThrow(state);
   }
 }
