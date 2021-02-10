@@ -1,5 +1,6 @@
 import { IAction } from "../interfaces/action.interface";
 import { IHydratableReducer, IReducer } from "../interfaces/reducer.interface";
+import { StoreManager } from "../managers/store.manager";
 
 export class MergeableReducer<T> implements IReducer<T> {
   private initialState: T;
@@ -26,10 +27,15 @@ export class MergeableReducer<T> implements IReducer<T> {
 export class PersistentMergeableReducer<T>
   extends MergeableReducer<T>
   implements IHydratableReducer<T> {
-  rehydrate(state: T, data: any, root: any): T | Promise<T> {
+  rehydrate(
+    state: T,
+    data: any,
+    root: any,
+    manager: StoreManager
+  ): T | Promise<T> {
     return data;
   }
-  dehydrate(state: T): any {
+  dehydrate(state: T, manager: StoreManager): any {
     return state;
   }
 }

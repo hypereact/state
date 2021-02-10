@@ -4,6 +4,7 @@ import {
   IReducer,
   Reduce,
 } from "../interfaces/reducer.interface";
+import { StoreManager } from "../managers/store.manager";
 
 export class ReduceableReducer<T> implements IReducer<T> {
   private initialState: T;
@@ -30,10 +31,15 @@ export class ReduceableReducer<T> implements IReducer<T> {
 export class PersistentReduceableReducer<T>
   extends ReduceableReducer<T>
   implements IHydratableReducer<T> {
-  rehydrate(state: T, data: any, root: any): T | Promise<T> {
+  rehydrate(
+    state: T,
+    data: any,
+    root: any,
+    manager: StoreManager
+  ): T | Promise<T> {
     return data;
   }
-  dehydrate(state: T): any {
+  dehydrate(state: T, manager: StoreManager): any {
     return state;
   }
 }
