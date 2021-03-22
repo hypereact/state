@@ -1,6 +1,6 @@
 {
   "name": "@hypereact/state",
-  "version": "1.1.35",
+  "version": "1.1.36",
   "private": false,
   "license": "(AGPL-3.0 OR GPL-3.0)",
   "main": "./js/index.js",
@@ -21,19 +21,19 @@
     "deploy": "npm run build && cd build && npm publish"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.0",
-    "@types/node": "^14.14.0",
-    "@types/react-redux": "^7.1.0",
-    "clean-publish": "^1.1.0",
+    "@types/jest": "^26.0.21",
+    "@types/node": "^14.14.35",
+    "@types/react-redux": "^7.1.16",
+    "clean-publish": "^1.1.9",
     "generate-release": "^1.1.0",
     "jest": "^26.0.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-redux": "^7.0.0",
     "redux": "^4.0.0",
-    "ts-jest": "^26.0.0",
-    "typedoc": "^0.20.0",
-    "typescript": "^4.1.0"
+    "ts-jest": "^26.5.4",
+    "typedoc": "^0.20.33",
+    "typescript": "^4.2.3"
   },
   "dependencies": {}
 }
